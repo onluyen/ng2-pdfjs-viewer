@@ -1,10 +1,88 @@
-import { Component, Input, Output, ViewChild, EventEmitter, ElementRef, HostListener } from '@angular/core';
+import { Component, Input, Output, ViewChild, EventEmitter, ElementRef } from '@angular/core';
 
 @Component({
   selector: 'ng2-pdfjs-viewer',
-  template: `<iframe title="ng2-pdfjs-viewer" [hidden]="externalWindow || (!externalWindow && !pdfSrc)" #iframe width="100%" height="100%"></iframe>`
+  template: `
+  <style>
+  .toolbar {
+    position: relative;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    cursor: default;
+    display: none;
+  }
+
+  #toolbarContainer {
+    width: 100%;
+  }
+
+  #toolbarContainer {
+    position: relative;
+    height: 32px;
+    background-color: #474747;
+    background-image: linear-gradient(hsla(0,0%,32%,.99), hsla(0,0%,27%,.95));
+  }
+
+  #toolbarViewer {
+    height: 32px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+  }
+
+  button{
+    background: none;
+    width: 53px;
+    height: 25px;
+    min-width: 16px;
+    padding: 2px 6px 0;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    color: hsla(0,0%,100%,.8);
+    font-size: 12px;
+    line-height: 14px;
+    -webkit-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
+    /* Opera does not support user-select, use <... unselectable="on"> instead */
+    cursor: pointer;
+    transition-property: background-color, border-color, box-shadow;
+    transition-duration: 150ms;
+    transition-timing-function: ease;
+  }
+
+  button:hover{
+    background-color: hsla(0,0%,0%,.12);
+    background-image: linear-gradient(hsla(0,0%,100%,.05), hsla(0,0%,100%,0));
+    background-clip: padding-box;
+    border: 1px solid hsla(0,0%,0%,.35);
+    border-color: hsla(0,0%,0%,.32) hsla(0,0%,0%,.38) hsla(0,0%,0%,.42);
+    box-shadow: 0 1px 0 hsla(0,0%,100%,.05) inset,
+                0 0 1px hsla(0,0%,100%,.15) inset,
+                0 1px 0 hsla(0,0%,100%,.05);
+  }
+  </style>
+  <div #viewWordBar class="toolbar">
+    <div id="toolbarContainer">
+      <div id="toolbarViewer">
+          <button id="download" (click)="downloadWordFile()" class="toolbarButton download" title="Download" tabindex="34" data-l10n-id="download">
+            <img src="/assets/pdfjs/web/images/toolbarButton-download.png" alt="Download"/>
+          </button>
+                
+          <button id="closeFile" (click)="closeWordFile()" class="toolbarButton" title="Close" tabindex="36" data-l10n-id="closeFile">
+          <img src="/assets/pdfjs/web/images/close-file.png" alt="Close"/>
+          </button>
+        </div>
+      </div>
+  </div>
+  <iframe title="ng2-pdfjs-viewer" [hidden]="externalWindow || (!externalWindow && !pdfSrc)" #iframe width="100%" height="100%"></iframe>
+  `
 })
 export class PdfJsViewerComponent {
+  @ViewChild('viewWordBar', { static: true }) viewWordBar: ElementRef;
   @ViewChild('iframe', { static: true }) iframe: ElementRef;
   @Input() public viewerId: string;
   @Output() onBeforePrint: EventEmitter<any> = new EventEmitter();
@@ -47,6 +125,8 @@ export class PdfJsViewerComponent {
 
   @Input() public closeButton: boolean;
   @Output() closeFile: EventEmitter<boolean> = new EventEmitter();
+
+  viewerUrl;
 
   @Input()
   public set page(_page: number) {
@@ -125,7 +205,81 @@ export class PdfJsViewerComponent {
     }
     if (viewerEvent.data && viewerEvent.data.event === "closefile") {
       this.closeFile.emit(true);
+    } else if (viewerEvent.data && viewerEvent.data.event === "loaderError") {
+      console.log('load docx!');
+      let url = this.getUrlFile();
+      let ext = this.getFileExtension(url.split('.pdf')[0]);
+      if (this.isValidFile(ext)) {
+        this.viewWordBar.nativeElement.style.display = 'block';
+        this.viewerUrl = `https://docs.google.com/gview?url=${url.split('.pdf')[0]}&embedded=true`;
+        if (this.externalWindow) {
+          this.viewerTab.location.href = this.viewerUrl;
+        } else {
+          this.iframe.nativeElement.src = this.viewerUrl;
+        }
+      }
     }
+  }
+
+  downloadFile(blobUrl, filename) {
+    var a = document.createElement('a');
+    if (!a.click) {
+      throw new Error('DownloadManager: "a.click()" is not supported.');
+    }
+    a.href = blobUrl;
+    a.target = '_parent';
+    if ('download' in a) {
+      a.download = filename;
+    }
+    (document.body || document.documentElement).appendChild(a);
+    a.click();
+    a.remove();
+  }
+
+
+  public downloadWordFile() {
+    console.log('download file!');
+    let url = this.getUrlFile();
+    let ext = this.getFileExtension(url.split('.pdf')[0]);
+    console.log(url.split('.pdf')[0]);
+    if (this.isValidFile(ext)) {
+      this.downloadFile(url.split('.pdf')[0], 'test');
+    }
+    else {
+      this.downloadFile(url, 'test');
+    }
+  }
+
+  public closeWordFile() {
+    console.log('close File!');
+    this.closeFile.emit(true);
+  }
+
+  isValidFile(str) {
+    switch (str.toLowerCase()) {
+      case 'doc':
+      case 'docx':
+      case 'xls':
+      case 'xlsx':
+        return true;
+    }
+    return false;
+  }
+
+  getUrlFile() {
+    if (this._src instanceof Blob) {
+      return encodeURIComponent(URL.createObjectURL(this._src));
+    } else if (this._src instanceof Uint8Array) {
+      let blob = new Blob([this._src], { type: "application/pdf" });
+      return encodeURIComponent(URL.createObjectURL(blob));
+    } else {
+      return this._src;
+    }
+  }
+
+  getFileExtension(filename) {
+    const ext = /^.+\.([^.]+)$/.exec(filename);
+    return ext == null ? '' : ext[1];
   }
 
   ngOnInit(): void {
@@ -143,7 +297,8 @@ export class PdfJsViewerComponent {
     if (!this._src) {
       return;
     }
-
+    this.viewerUrl = '';
+    this.viewWordBar.nativeElement.style.display = 'none';
     // console.log(`Tab is - ${this.viewerTab}`);
     // if (this.viewerTab) {
     //   console.log(`Status of window - ${this.viewerTab.closed}`);
@@ -184,162 +339,151 @@ export class PdfJsViewerComponent {
       }
     }
 
-    let fileUrl;
-    //if (typeof this.src === "string") {
-    //  fileUrl = this.src;
-    //}
-    if (this._src instanceof Blob) {
-      fileUrl = encodeURIComponent(URL.createObjectURL(this._src));
-    } else if (this._src instanceof Uint8Array) {
-      let blob = new Blob([this._src], { type: "application/pdf" });
-      fileUrl = encodeURIComponent(URL.createObjectURL(blob));
-    } else {
-      fileUrl = this._src;
-    }
-
-    let viewerUrl;
+    let fileUrl = this.getUrlFile();
+    // let this.viewerUrl;
     if (this.viewerFolder) {
-      viewerUrl = `${this.viewerFolder}/web/viewer.html`;
+      this.viewerUrl = `${this.viewerFolder}/web/viewer.html`;
     } else {
-      viewerUrl = `assets/pdfjs/web/viewer.html`;
+      this.viewerUrl = `assets/pdfjs/web/viewer.html`;
     }
 
-    viewerUrl += `?file=${fileUrl}`;
+    this.viewerUrl += `?file=${fileUrl}`;
 
     if (typeof this.viewerId !== 'undefined') {
-      viewerUrl += `&viewerId=${this.viewerId}`;
+      this.viewerUrl += `&viewerId=${this.viewerId}`;
     }
     if (typeof this.onBeforePrint !== 'undefined') {
-      viewerUrl += `&beforePrint=true`;
+      this.viewerUrl += `&beforePrint=true`;
     }
     if (typeof this.onAfterPrint !== 'undefined') {
-      viewerUrl += `&afterPrint=true`;
+      this.viewerUrl += `&afterPrint=true`;
     }
     if (typeof this.onDocumentLoad !== 'undefined') {
-      viewerUrl += `&pagesLoaded=true`;
+      this.viewerUrl += `&pagesLoaded=true`;
     }
     if (typeof this.onPageChange !== 'undefined') {
-      viewerUrl += `&pageChange=true`;
+      this.viewerUrl += `&pageChange=true`;
     }
     if (typeof this.closeButton !== 'undefined') {
-      viewerUrl += `&closeFile=${this.closeButton}`;
+      this.viewerUrl += `&closeFile=${this.closeButton}`;
     }
 
     if (this.downloadFileName) {
       if (!this.downloadFileName.endsWith(".pdf")) {
         this.downloadFileName += ".pdf";
       }
-      viewerUrl += `&fileName=${this.downloadFileName}`;
+      this.viewerUrl += `&fileName=${this.downloadFileName}`;
     }
     if (typeof this.openFile !== 'undefined') {
-      viewerUrl += `&openFile=${this.openFile}`;
+      this.viewerUrl += `&openFile=${this.openFile}`;
     }
     if (typeof this.download !== 'undefined') {
-      viewerUrl += `&download=${this.download}`;
+      this.viewerUrl += `&download=${this.download}`;
     }
     if (this.startDownload) {
-      viewerUrl += `&startDownload=${this.startDownload}`;
+      this.viewerUrl += `&startDownload=${this.startDownload}`;
     }
     if (typeof this.viewBookmark !== 'undefined') {
-      viewerUrl += `&viewBookmark=${this.viewBookmark}`;
+      this.viewerUrl += `&viewBookmark=${this.viewBookmark}`;
     }
     if (typeof this.print !== 'undefined') {
-      viewerUrl += `&print=${this.print}`;
+      this.viewerUrl += `&print=${this.print}`;
     }
     if (this.startPrint) {
-      viewerUrl += `&startPrint=${this.startPrint}`;
+      this.viewerUrl += `&startPrint=${this.startPrint}`;
     }
     if (typeof this.fullScreen !== 'undefined') {
-      viewerUrl += `&fullScreen=${this.fullScreen}`;
+      this.viewerUrl += `&fullScreen=${this.fullScreen}`;
     }
     // if (this.showFullScreen) {
-    //   viewerUrl += `&showFullScreen=${this.showFullScreen}`;
+    //   this.viewerUrl += `&showFullScreen=${this.showFullScreen}`;
     // }
     if (typeof this.find !== 'undefined') {
-      viewerUrl += `&find=${this.find}`;
+      this.viewerUrl += `&find=${this.find}`;
     }
     if (this.lastPage) {
-      viewerUrl += `&lastpage=${this.lastPage}`;
+      this.viewerUrl += `&lastpage=${this.lastPage}`;
     }
     if (this.rotatecw) {
-      viewerUrl += `&rotatecw=${this.rotatecw}`;
+      this.viewerUrl += `&rotatecw=${this.rotatecw}`;
     }
     if (this.rotateccw) {
-      viewerUrl += `&rotateccw=${this.rotateccw}`;
+      this.viewerUrl += `&rotateccw=${this.rotateccw}`;
     }
     if (this.cursor) {
-      viewerUrl += `&cursor=${this.cursor}`;
+      this.viewerUrl += `&cursor=${this.cursor}`;
     }
     if (this.scroll) {
-      viewerUrl += `&scroll=${this.scroll}`;
+      this.viewerUrl += `&scroll=${this.scroll}`;
     }
     if (this.spread) {
-      viewerUrl += `&spread=${this.spread}`;
+      this.viewerUrl += `&spread=${this.spread}`;
     }
     if (this.locale) {
-      viewerUrl += `&locale=${this.locale}`;
+      this.viewerUrl += `&locale=${this.locale}`;
     }
     if (this.useOnlyCssZoom) {
-      viewerUrl += `&useOnlyCssZoom=${this.useOnlyCssZoom}`;
+      this.viewerUrl += `&useOnlyCssZoom=${this.useOnlyCssZoom}`;
     }
 
-    if (this._page || this.zoom || this.nameddest || this.pagemode) viewerUrl += "#"
+    if (this._page || this.zoom || this.nameddest || this.pagemode) this.viewerUrl += "#"
     if (this._page) {
-      viewerUrl += `&page=${this._page}`;
+      this.viewerUrl += `&page=${this._page}`;
     }
     if (this.zoom) {
-      viewerUrl += `&zoom=${this.zoom}`;
+      this.viewerUrl += `&zoom=${this.zoom}`;
     }
     if (this.nameddest) {
-      viewerUrl += `&nameddest=${this.nameddest}`;
+      this.viewerUrl += `&nameddest=${this.nameddest}`;
     }
     if (this.pagemode) {
-      viewerUrl += `&pagemode=${this.pagemode}`;
+      this.viewerUrl += `&pagemode=${this.pagemode}`;
     }
     if (this.errorOverride || this.errorAppend) {
-      viewerUrl += `&errorMessage=${this.errorMessage}`;
+      this.viewerUrl += `&errorMessage=${this.errorMessage}`;
 
       if (this.errorOverride) {
-        viewerUrl += `&errorOverride=${this.errorOverride}`;
+        this.viewerUrl += `&errorOverride=${this.errorOverride}`;
       }
       if (this.errorAppend) {
-        viewerUrl += `&errorAppend=${this.errorAppend}`;
+        this.viewerUrl += `&errorAppend=${this.errorAppend}`;
       }
     }
 
     if (this.externalWindow) {
-      this.viewerTab.location.href = viewerUrl;
+      this.viewerTab.location.href = this.viewerUrl;
     } else {
-      this.iframe.nativeElement.src = viewerUrl;
+      this.iframe.nativeElement.src = this.viewerUrl;
     }
 
-    // console.log(`
-    //   pdfSrc = ${this.pdfSrc}
-    //   fileUrl = ${fileUrl}
-    //   externalWindow = ${this.externalWindow}
-    //   downloadFileName = ${this.downloadFileName}
-    //   viewerFolder = ${this.viewerFolder}
-    //   openFile = ${this.openFile}
-    //   download = ${this.download}
-    //   startDownload = ${this.startDownload}
-    //   viewBookmark = ${this.viewBookmark}
-    //   print = ${this.print}
-    //   startPrint = ${this.startPrint}
-    //   fullScreen = ${this.fullScreen}
-    //   find = ${this.find}
-    //   lastPage = ${this.lastPage}
-    //   rotatecw = ${this.rotatecw}
-    //   rotateccw = ${this.rotateccw}
-    //   cursor = ${this.cursor}
-    //   scrollMode = ${this.scroll}
-    //   spread = ${this.spread}
-    //   page = ${this.page}
-    //   zoom = ${this.zoom}
-    //   nameddest = ${this.nameddest}
-    //   pagemode = ${this.pagemode}
-    //   pagemode = ${this.errorOverride}
-    //   pagemode = ${this.errorAppend}
-    //   pagemode = ${this.errorMessage}
-    // `);
+    console.log(`
+      pdfSrc = ${this.pdfSrc}
+      fileUrl = ${fileUrl}
+      externalWindow = ${this.externalWindow}
+      downloadFileName = ${this.downloadFileName}
+    `);
+
+    // viewerFolder = ${this.viewerFolder}
+    // openFile = ${this.openFile}
+    // download = ${this.download}
+    // startDownload = ${this.startDownload}
+    // viewBookmark = ${this.viewBookmark}
+    // print = ${this.print}
+    // startPrint = ${this.startPrint}
+    // fullScreen = ${this.fullScreen}
+    // find = ${this.find}
+    // lastPage = ${this.lastPage}
+    // rotatecw = ${this.rotatecw}
+    // rotateccw = ${this.rotateccw}
+    // cursor = ${this.cursor}
+    // scrollMode = ${this.scroll}
+    // spread = ${this.spread}
+    // page = ${this.page}
+    // zoom = ${this.zoom}
+    // nameddest = ${this.nameddest}
+    // pagemode = ${this.pagemode}
+    // pagemode = ${this.errorOverride}
+    // pagemode = ${this.errorAppend}
+    // pagemode = ${this.errorMessage}
   }
 }
