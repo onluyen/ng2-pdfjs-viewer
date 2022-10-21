@@ -2,7 +2,9 @@ import { EventEmitter, ElementRef } from '@angular/core';
 import * as i0 from "@angular/core";
 export declare class PdfJsViewerComponent {
     viewWordBar: ElementRef;
-    iframe: ElementRef;
+    loadingSpin: ElementRef;
+    iframeDocx: ElementRef;
+    iframePDF: ElementRef;
     viewerId: string;
     onBeforePrint: EventEmitter<any>;
     onAfterPrint: EventEmitter<any>;

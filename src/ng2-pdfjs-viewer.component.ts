@@ -64,6 +64,43 @@ import { Component, Input, Output, ViewChild, EventEmitter, ElementRef } from '@
                 0 0 1px hsla(0,0%,100%,.15) inset,
                 0 1px 0 hsla(0,0%,100%,.05);
   }
+
+  .loadingSpin{
+    display: none;
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, .25);
+    z-index: 1000; 
+  }
+
+  .loader {
+    z-index: 1001; 
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border: 16px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 16px solid #3498db;
+    width: 120px;
+    height: 120px;
+    -webkit-animation: spin 2s linear infinite; /* Safari */
+    animation: spin 2s linear infinite;
+  }
+  
+  /* Safari */
+  @-webkit-keyframes spin {
+    0% { -webkit-transform: rotate(0deg); }
+    100% { -webkit-transform: rotate(360deg); }
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
   </style>
   <div #viewWordBar class="toolbar">
     <div id="toolbarContainer">
@@ -78,12 +115,19 @@ import { Component, Input, Output, ViewChild, EventEmitter, ElementRef } from '@
         </div>
       </div>
   </div>
-  <iframe title="ng2-pdfjs-viewer" [hidden]="externalWindow || (!externalWindow && !pdfSrc)" #iframe width="100%" height="100%"></iframe>
+  <div #loadingSpin class="loadingSpin">
+    <div class="loader"></div>
+  </div>
+  <iframe id="iframeDocx" #iframeDocx title="ng2-pdfjs-viewer" [hidden]="externalWindow || (!externalWindow && !pdfSrc)" #iframe width="100%" height="100%"></iframe>
+
+  <iframe id="iframePDF" #iframePDF title="ng2-pdfjs-viewer" [hidden]="externalWindow || (!externalWindow && !pdfSrc)" #iframe width="100%" height="100%"></iframe>
   `
 })
 export class PdfJsViewerComponent {
   @ViewChild('viewWordBar', { static: true }) viewWordBar: ElementRef;
-  @ViewChild('iframe', { static: true }) iframe: ElementRef;
+  @ViewChild('loadingSpin', { static: true }) loadingSpin: ElementRef;
+  @ViewChild('iframeDocx', { static: true }) iframeDocx: ElementRef;
+  @ViewChild('iframePDF', { static: true }) iframePDF: ElementRef;
   @Input() public viewerId: string;
   @Output() onBeforePrint: EventEmitter<any> = new EventEmitter();
   @Output() onAfterPrint: EventEmitter<any> = new EventEmitter();
@@ -162,8 +206,8 @@ export class PdfJsViewerComponent {
         pdfViewerOptions = this.viewerTab.PDFViewerApplicationOptions;
       }
     } else {
-      if (this.iframe.nativeElement.contentWindow) {
-        pdfViewerOptions = this.iframe.nativeElement.contentWindow.PDFViewerApplicationOptions;
+      if (this.iframePDF.nativeElement.contentWindow) {
+        pdfViewerOptions = this.iframePDF.nativeElement.contentWindow.PDFViewerApplicationOptions;
       }
     }
     return pdfViewerOptions;
@@ -176,8 +220,8 @@ export class PdfJsViewerComponent {
         pdfViewer = this.viewerTab.PDFViewerApplication;
       }
     } else {
-      if (this.iframe.nativeElement.contentWindow) {
-        pdfViewer = this.iframe.nativeElement.contentWindow.PDFViewerApplication;
+      if (this.iframePDF.nativeElement.contentWindow) {
+        pdfViewer = this.iframePDF.nativeElement.contentWindow.PDFViewerApplication;
       }
     }
     return pdfViewer;
@@ -206,17 +250,36 @@ export class PdfJsViewerComponent {
     if (viewerEvent.data && viewerEvent.data.event === "closefile") {
       this.closeFile.emit(true);
     } else if (viewerEvent.data && viewerEvent.data.event === "loaderError") {
+      this.loadingSpin.nativeElement.style.display = 'block';
+      this.iframePDF.nativeElement.style.display = 'none';
+
       console.log('load docx!');
       let url = this.getUrlFile();
       let ext = this.getFileExtension(url.split('.pdf')[0]);
       if (this.isValidFile(ext)) {
         this.viewWordBar.nativeElement.style.display = 'block';
         this.viewerUrl = `https://docs.google.com/gview?url=${url.split('.pdf')[0]}&embedded=true`;
-        if (this.externalWindow) {
-          this.viewerTab.location.href = this.viewerUrl;
-        } else {
-          this.iframe.nativeElement.src = this.viewerUrl;
-        }
+        this.iframeDocx.nativeElement.style.display = 'block';
+
+        let countTimeload = 0;
+        let checkContent = false;
+        do {
+          this.iframeDocx.nativeElement.src = this.viewerUrl;
+          setTimeout(() => {
+            let content = this.iframeDocx.nativeElement.contentWindow.document.getElementsByTagName('body')[0].innerHTML;
+            if (content !== '') {
+              checkContent = true;
+              return;
+            } else {
+              countTimeload++;
+            }
+            console.log(countTimeload, content);
+          }, 3000 * countTimeload);
+        } while (countTimeload === 4 || checkContent);
+
+        setTimeout(() => {
+          this.loadingSpin.nativeElement.style.display = 'none';
+        }, 3000 * countTimeload);
       }
     }
   }
@@ -303,6 +366,9 @@ export class PdfJsViewerComponent {
     // if (this.viewerTab) {
     //   console.log(`Status of window - ${this.viewerTab.closed}`);
     // }
+
+
+    this.iframeDocx.nativeElement.style.display = 'none';
 
     if (this.externalWindow && (typeof this.viewerTab === 'undefined' || this.viewerTab.closed)) {
       this.viewerTab = window.open('', '_blank', this.externalWindowOptions || '');
@@ -453,7 +519,7 @@ export class PdfJsViewerComponent {
     if (this.externalWindow) {
       this.viewerTab.location.href = this.viewerUrl;
     } else {
-      this.iframe.nativeElement.src = this.viewerUrl;
+      this.iframePDF.nativeElement.src = this.viewerUrl;
     }
 
     console.log(`

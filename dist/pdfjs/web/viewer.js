@@ -1034,6 +1034,8 @@ var PDFViewerApplication = {
 
                 window.parent.postMessage({event: "loaderError"}, "*");
 
+                return;
+
                 if (loadingTask !== _this2.pdfLoadingTask) {
                   return undefined;
                 }
