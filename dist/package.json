@@ -1,5 +1,5 @@
 {
-  "name": "@hoabanmc/ng2-pdfjs-viewer",
+  "name": "@onluyen/ng2-pdfjs-viewer",
   "version": "1.1.19",
   "peerDependencies": {
     "@angular/common": "^14.1.0",
@@ -7,7 +7,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/intbot/ng2-pdfjs-viewer"
+    "url": "https://github.com/onluyen/ng2-pdfjs-viewer/tree/angular-14"
   },
   "author": {
     "name": "Code1",
@@ -19,17 +19,18 @@
     "ng2",
     "pdfjs",
     "viewerjs",
-    "viewer.html"
+    "viewer.html",
+    "docx"
   ],
   "license": "Apache",
   "bugs": {
-    "url": "https://github.com/intbot/ng2-pdfjs-viewer/issues"
+    "url": "https://github.com/onluyen/ng2-pdfjs-viewer/issues"
   },
-  "module": "fesm2015/hoabanmc-ng2-pdfjs-viewer.mjs",
-  "es2020": "fesm2020/hoabanmc-ng2-pdfjs-viewer.mjs",
-  "esm2020": "esm2020/hoabanmc-ng2-pdfjs-viewer.mjs",
-  "fesm2020": "fesm2020/hoabanmc-ng2-pdfjs-viewer.mjs",
-  "fesm2015": "fesm2015/hoabanmc-ng2-pdfjs-viewer.mjs",
+  "module": "fesm2015/onluyen-ng2-pdfjs-viewer.mjs",
+  "es2020": "fesm2020/onluyen-ng2-pdfjs-viewer.mjs",
+  "esm2020": "esm2020/onluyen-ng2-pdfjs-viewer.mjs",
+  "fesm2020": "fesm2020/onluyen-ng2-pdfjs-viewer.mjs",
+  "fesm2015": "fesm2015/onluyen-ng2-pdfjs-viewer.mjs",
   "typings": "index.d.ts",
   "exports": {
     "./package.json": {
@@ -37,11 +38,11 @@
     },
     ".": {
       "types": "./index.d.ts",
-      "esm2020": "./esm2020/hoabanmc-ng2-pdfjs-viewer.mjs",
-      "es2020": "./fesm2020/hoabanmc-ng2-pdfjs-viewer.mjs",
-      "es2015": "./fesm2015/hoabanmc-ng2-pdfjs-viewer.mjs",
-      "node": "./fesm2015/hoabanmc-ng2-pdfjs-viewer.mjs",
-      "default": "./fesm2020/hoabanmc-ng2-pdfjs-viewer.mjs"
+      "esm2020": "./esm2020/onluyen-ng2-pdfjs-viewer.mjs",
+      "es2020": "./fesm2020/onluyen-ng2-pdfjs-viewer.mjs",
+      "es2015": "./fesm2015/onluyen-ng2-pdfjs-viewer.mjs",
+      "node": "./fesm2015/onluyen-ng2-pdfjs-viewer.mjs",
+      "default": "./fesm2020/onluyen-ng2-pdfjs-viewer.mjs"
     }
   },
   "sideEffects": false,

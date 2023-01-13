@@ -260,5 +260,3 @@ paket-files/
 __pycache__/
 *.pyc
 auto_deploy.ps1
-dist/
-package-lock.json

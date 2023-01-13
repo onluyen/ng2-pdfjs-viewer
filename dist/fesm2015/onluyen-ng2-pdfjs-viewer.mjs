@@ -748,4 +748,4 @@ i0.ɵɵngDeclareClassMetadata({ minVersion: "12.0.0", version: "14.2.12", ngImpo
  */
 
 export { PdfJsViewerComponent, PdfJsViewerModule };
-//# sourceMappingURL=hoabanmc-ng2-pdfjs-viewer.mjs.map
+//# sourceMappingURL=onluyen-ng2-pdfjs-viewer.mjs.map

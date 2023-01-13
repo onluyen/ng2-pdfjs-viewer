@@ -1,5 +1,5 @@
 {
-  "name": "@hoabanmc/ng2-pdfjs-viewer",
+  "name": "@onluyen/ng2-pdfjs-viewer",
   "version": "1.1.19",
   "scripts": {
     "build": "ng-packagr"
@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/intbot/ng2-pdfjs-viewer"
+    "url": "https://github.com/onluyen/ng2-pdfjs-viewer/tree/angular-14"
   },
   "author": {
     "name": "Code1",
@@ -25,10 +25,11 @@
     "ng2",
     "pdfjs",
     "viewerjs",
-    "viewer.html"
+    "viewer.html",
+    "docx"
   ],
   "license": "Apache",
   "bugs": {
-    "url": "https://github.com/intbot/ng2-pdfjs-viewer/issues"
+    "url": "https://github.com/onluyen/ng2-pdfjs-viewer/issues"
   }
 }
