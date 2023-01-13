@@ -1,4 +1,6 @@
-# Customize
+# This repository Customize for Onluyen
+
+***🎉🎉🎉 Thanks a lot for [intbot/ng2-pdfjs-viewer](https://github.com/intbot/ng2-pdfjs-viewer) 🎉🎉🎉***
 
 1. **Add close buttton**
 2. **Download with root url**
