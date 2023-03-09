@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-::-webkit-scrollbar {
+/* ::-webkit-scrollbar {
   height: 6px !important;
   width: 6px !important;
 }
@@ -21,7 +21,7 @@
 ::-webkit-scrollbar-thumb {
   background: #fff !important;
   border-radius: 3px !important;
-}
+} */
 
 .textLayer {
   position: absolute;

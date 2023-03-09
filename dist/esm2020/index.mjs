@@ -10,10 +10,10 @@ export class PdfJsViewerModule {
         };
     }
 }
-PdfJsViewerModule.ɵfac = i0.ɵɵngDeclareFactory({ minVersion: "12.0.0", version: "15.2.0", ngImport: i0, type: PdfJsViewerModule, deps: [], target: i0.ɵɵFactoryTarget.NgModule });
-PdfJsViewerModule.ɵmod = i0.ɵɵngDeclareNgModule({ minVersion: "14.0.0", version: "15.2.0", ngImport: i0, type: PdfJsViewerModule, declarations: [PdfJsViewerComponent], imports: [CommonModule], exports: [PdfJsViewerComponent] });
-PdfJsViewerModule.ɵinj = i0.ɵɵngDeclareInjector({ minVersion: "12.0.0", version: "15.2.0", ngImport: i0, type: PdfJsViewerModule, imports: [CommonModule] });
-i0.ɵɵngDeclareClassMetadata({ minVersion: "12.0.0", version: "15.2.0", ngImport: i0, type: PdfJsViewerModule, decorators: [{
+PdfJsViewerModule.ɵfac = i0.ɵɵngDeclareFactory({ minVersion: "12.0.0", version: "15.2.2", ngImport: i0, type: PdfJsViewerModule, deps: [], target: i0.ɵɵFactoryTarget.NgModule });
+PdfJsViewerModule.ɵmod = i0.ɵɵngDeclareNgModule({ minVersion: "14.0.0", version: "15.2.2", ngImport: i0, type: PdfJsViewerModule, declarations: [PdfJsViewerComponent], imports: [CommonModule], exports: [PdfJsViewerComponent] });
+PdfJsViewerModule.ɵinj = i0.ɵɵngDeclareInjector({ minVersion: "12.0.0", version: "15.2.2", ngImport: i0, type: PdfJsViewerModule, imports: [CommonModule] });
+i0.ɵɵngDeclareClassMetadata({ minVersion: "12.0.0", version: "15.2.2", ngImport: i0, type: PdfJsViewerModule, decorators: [{
             type: NgModule,
             args: [{
                     imports: [
