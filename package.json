@@ -1,24 +1,24 @@
 {
   "name": "@onluyen/ng2-pdfjs-viewer",
-  "version": "1.1.3",
+  "version": "1.1.16",
   "$schema": "./node_modules/ng-packagr/package.schema.json",
   "scripts": {
     "build": "ng-packagr -p ng-package.json"
   },
   "devDependencies": {
-    "ng-packagr": "^15.2.2"
+    "ng-packagr": "^16.0.1"
   },
   "peerDependencies": {
-    "@angular/common": "^15.2.2",
-    "@angular/core": "^15.2.2"
+    "@angular/common": "^16.0.3",
+    "@angular/core": "^16.0.3"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/onluyen/ng2-pdfjs-viewer/tree/angular-14"
+    "url": "https://github.com/onluyen/ng2-pdfjs-viewer/tree/tieuhoc"
   },
   "author": {
-    "name": "Code1",
-    "email": "codehippie1@gmail.com"
+    "name": "Edmicro",
+    "email": "admin@edmicro.vn"
   },
   "keywords": [
     "angular",
