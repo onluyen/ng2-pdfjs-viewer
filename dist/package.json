@@ -1,0 +1,53 @@
+{
+  "name": "@onluyen/ng2-pdfjs-viewer",
+  "version": "1.23.16",
+  "$schema": "./node_modules/ng-packagr/package.schema.json",
+  "peerDependencies": {
+    "@angular/common": "^16.0.3",
+    "@angular/core": "^16.0.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/onluyen/ng2-pdfjs-viewer/tree/angular-16"
+  },
+  "author": {
+    "name": "Edmicro",
+    "email": "admin@edmicro.vn"
+  },
+  "keywords": [
+    "angular",
+    "ng",
+    "ng2",
+    "pdfjs",
+    "viewerjs",
+    "viewer.html",
+    "docx"
+  ],
+  "license": "Apache",
+  "bugs": {
+    "url": "https://github.com/onluyen/ng2-pdfjs-viewer/issues"
+  },
+  "module": "fesm2015/onluyen-ng2-pdfjs-viewer.mjs",
+  "es2020": "fesm2020/onluyen-ng2-pdfjs-viewer.mjs",
+  "esm2020": "esm2020/onluyen-ng2-pdfjs-viewer.mjs",
+  "fesm2020": "fesm2020/onluyen-ng2-pdfjs-viewer.mjs",
+  "fesm2015": "fesm2015/onluyen-ng2-pdfjs-viewer.mjs",
+  "typings": "index.d.ts",
+  "exports": {
+    "./package.json": {
+      "default": "./package.json"
+    },
+    ".": {
+      "types": "./index.d.ts",
+      "esm2020": "./esm2020/onluyen-ng2-pdfjs-viewer.mjs",
+      "es2020": "./fesm2020/onluyen-ng2-pdfjs-viewer.mjs",
+      "es2015": "./fesm2015/onluyen-ng2-pdfjs-viewer.mjs",
+      "node": "./fesm2015/onluyen-ng2-pdfjs-viewer.mjs",
+      "default": "./fesm2020/onluyen-ng2-pdfjs-viewer.mjs"
+    }
+  },
+  "sideEffects": false,
+  "dependencies": {
+    "tslib": "^2.3.0"
+  }
+}
