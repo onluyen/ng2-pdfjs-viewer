@@ -1,0 +1,36 @@
+{
+  "name": "@onluyen/ng2-pdfjs-viewer",
+  "version": "1.23.15",
+  "$schema": "./node_modules/ng-packagr/package.schema.json",
+  "scripts": {
+    "build": "ng-packagr -p ng-package.json"
+  },
+  "devDependencies": {
+    "ng-packagr": "^15.0.0"
+  },
+  "peerDependencies": {
+    "@angular/common": "^15.0.0",
+    "@angular/core": "^15.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/onluyen/ng2-pdfjs-viewer/tree/angular-15"
+  },
+  "author": {
+    "name": "Edmicro",
+    "email": "admin@edmicro.vn"
+  },
+  "keywords": [
+    "angular",
+    "ng",
+    "ng2",
+    "pdfjs",
+    "viewerjs",
+    "viewer.html",
+    "docx"
+  ],
+  "license": "Apache",
+  "bugs": {
+    "url": "https://github.com/onluyen/ng2-pdfjs-viewer/issues"
+  }
+}
