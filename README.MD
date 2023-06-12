@@ -2,6 +2,8 @@
 
 ***🎉🎉🎉 Thanks a lot for [intbot/ng2-pdfjs-viewer](https://github.com/intbot/ng2-pdfjs-viewer) 🎉🎉🎉***
 
+cd to dist folder and run `npm pack` to check
+
 1. **Add close buttton**
 2. **Download with root url**
 3. **If file pdf( convert from docx, doc...) loaded errors. Using [docs.google.com] to view it**

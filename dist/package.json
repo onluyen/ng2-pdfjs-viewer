@@ -1,6 +1,7 @@
 {
   "name": "@onluyen/ng2-pdfjs-viewer",
-  "version": "1.1.19",
+  "version": "1.23.14",
+  "$schema": "./node_modules/ng-packagr/package.schema.json",
   "peerDependencies": {
     "@angular/common": "^14.1.0",
     "@angular/core": "^14.1.0"
@@ -10,8 +11,8 @@
     "url": "https://github.com/onluyen/ng2-pdfjs-viewer/tree/angular-14"
   },
   "author": {
-    "name": "Code1",
-    "email": "codehippie1@gmail.com"
+    "name": "Edmicro",
+    "email": "admin@edmicro.vn"
   },
   "keywords": [
     "angular",
