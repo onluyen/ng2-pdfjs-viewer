@@ -1,6 +1,6 @@
 {
   "name": "@onluyen/ng2-pdfjs-viewer",
-  "version": "1.23.16",
+  "version": "1.23.17",
   "$schema": "./node_modules/ng-packagr/package.schema.json",
   "scripts": {
     "build": "ng-packagr -p ng-package.json"

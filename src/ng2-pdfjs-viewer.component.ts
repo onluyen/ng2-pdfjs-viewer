@@ -253,33 +253,48 @@ export class PdfJsViewerComponent {
       this.loadingSpin.nativeElement.style.display = 'block';
       this.iframePDF.nativeElement.style.display = 'none';
 
-      console.log('load docx!');
+
       let url = this.getUrlFile();
       let ext = this.getFileExtension(url.split('.pdf')[0]);
       if (this.isValidFile(ext)) {
+
+        console.log(url.split('.pdf')[0]);
+
         this.viewWordBar.nativeElement.style.display = 'block';
         this.viewerUrl = `https://docs.google.com/gview?url=${url.split('.pdf')[0]}&embedded=true`;
         this.iframeDocx.nativeElement.style.display = 'block';
 
         let countTimeload = 0;
         let checkContent = false;
-        do {
-          this.iframeDocx.nativeElement.src = this.viewerUrl;
-          setTimeout(() => {
-            let content = this.iframeDocx.nativeElement.contentWindow.document.getElementsByTagName('body')[0].innerHTML;
-            if (content !== '') {
-              checkContent = true;
-              return;
-            } else {
-              countTimeload++;
-            }
-            console.log(countTimeload, content);
-          }, 3000 * countTimeload);
-        } while (countTimeload === 4 || checkContent);
+
+        setTimeout(() => {
+          do {
+            this.iframeDocx.nativeElement.src = this.viewerUrl;
+            setTimeout(() => {
+              let content = this.iframeDocx.nativeElement?.contentWindow?.document?.getElementsByTagName('body')[0]?.innerHTML;
+              if (content !== '') {
+                checkContent = true;
+                return;
+              } else {
+                countTimeload++;
+              }
+            }, 3000 * countTimeload);
+          } while (countTimeload === 4 || checkContent);
+
+
+          if (!checkContent) {
+            this.viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${url.split('.pdf')[0]}`;
+            this.iframeDocx.nativeElement.src = this.viewerUrl;
+          } else {
+            alert('Hiện tại chưa xem được file!');
+          }
+        })
 
         setTimeout(() => {
           this.loadingSpin.nativeElement.style.display = 'none';
-        }, 3000 * countTimeload);
+        }, 3200 * countTimeload);
+      } else {
+        console.log('Định dạng không hợp lệ!');
       }
     }
   }

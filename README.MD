@@ -97,12 +97,12 @@ Some of below features are unique to this component, which is unavailable in nat
 ✔️ **Scroll** 📜 - Changes the scroll to your choice. Even wrapped scrolling is supported.  
 ✔️ **Spread** - Allows you to change spread to odd or even.  
 
-
+<!-- 
 ### Open in a new tab/ external window
 <img src="/sampledoc/ng2pdfjsviewerExternal.JPG" alt="angular pdfjs viewer in new window"/>
 
 ### Embed pdf into any angular component/page
-<img src="/sampledoc/ng2pdfjsviewerEmbedded.JPG" alt="angular pdfjs viewer embedded"/>
+<img src="/sampledoc/ng2pdfjsviewerEmbedded.JPG" alt="angular pdfjs viewer embedded"/> -->
 
 ## Installation
 

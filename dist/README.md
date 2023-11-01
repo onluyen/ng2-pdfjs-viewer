@@ -2,6 +2,8 @@
 
 ***🎉🎉🎉 Thanks a lot for [intbot/ng2-pdfjs-viewer](https://github.com/intbot/ng2-pdfjs-viewer) 🎉🎉🎉***
 
+cd to dist folder and run `npm pack` to check
+
 1. **Add close buttton**
 2. **Download with root url**
 3. **If file pdf( convert from docx, doc...) loaded errors. Using [docs.google.com] to view it**
@@ -95,12 +97,12 @@ Some of below features are unique to this component, which is unavailable in nat
 ✔️ **Scroll** 📜 - Changes the scroll to your choice. Even wrapped scrolling is supported.  
 ✔️ **Spread** - Allows you to change spread to odd or even.  
 
-
+<!-- 
 ### Open in a new tab/ external window
 <img src="/sampledoc/ng2pdfjsviewerExternal.JPG" alt="angular pdfjs viewer in new window"/>
 
 ### Embed pdf into any angular component/page
-<img src="/sampledoc/ng2pdfjsviewerEmbedded.JPG" alt="angular pdfjs viewer embedded"/>
+<img src="/sampledoc/ng2pdfjsviewerEmbedded.JPG" alt="angular pdfjs viewer embedded"/> -->
 
 ## Installation
 
