@@ -3,8 +3,8 @@
   "version": "1.23.18",
   "$schema": "./node_modules/ng-packagr/package.schema.json",
   "peerDependencies": {
-    "@angular/common": "^17.0.6",
-    "@angular/core": "^17.0.6"
+    "@angular/common": "~17.0.5",
+    "@angular/core": "~17.0.5"
   },
   "repository": {
     "type": "git",
