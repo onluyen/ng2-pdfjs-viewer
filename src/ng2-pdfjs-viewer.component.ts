@@ -339,6 +339,8 @@ export class PdfJsViewerComponent {
       case 'docx':
       case 'xls':
       case 'xlsx':
+      case 'pptx':
+      case 'ppt':
         return true;
     }
     return false;
