@@ -118,9 +118,9 @@ import { Component, Input, Output, ViewChild, EventEmitter, ElementRef } from '@
   <div #loadingSpin class="loadingSpin">
     <div class="loader"></div>
   </div>
-  <iframe id="iframeDocx" #iframeDocx title="ng2-pdfjs-viewer" [hidden]="externalWindow || (!externalWindow && !pdfSrc)" #iframe width="100%" height="100%"></iframe>
+  <iframe id="iframeDocx" #iframeDocx title="ng2-pdfjs-viewer" [hidden]="externalWindow || (!externalWindow && !pdfSrc)" width="100%" height="100%"></iframe>
 
-  <iframe id="iframePDF" #iframePDF title="ng2-pdfjs-viewer" [hidden]="externalWindow || (!externalWindow && !pdfSrc)" #iframe width="100%" height="100%"></iframe>
+  <iframe id="iframePDF" #iframePDF title="ng2-pdfjs-viewer" [hidden]="externalWindow || (!externalWindow && !pdfSrc)" width="100%" height="100%"></iframe>
   `
 })
 export class PdfJsViewerComponent {
