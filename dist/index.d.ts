@@ -1,8 +1,8 @@
 import { ModuleWithProviders } from '@angular/core';
 import * as i0 from "@angular/core";
-import * as i1 from "./src/ng2-pdfjs-viewer.component";
+import * as i1 from "./ng2-pdfjs-viewer.component";
 import * as i2 from "@angular/common";
-export * from './src/ng2-pdfjs-viewer.component';
+export * from './ng2-pdfjs-viewer.component';
 export declare class PdfJsViewerModule {
     static forRoot(): ModuleWithProviders<PdfJsViewerModule>;
     static ɵfac: i0.ɵɵFactoryDeclaration<PdfJsViewerModule, never>;

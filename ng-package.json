@@ -4,6 +4,6 @@
         "./pdfjs/**/*.*"
     ],
     "lib": {
-        "entryFile": "index.ts"
+        "entryFile": "./src/index.ts"
     }
 }

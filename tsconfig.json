@@ -8,10 +8,6 @@
       "ES2022",
       "dom"
     ],
-    "skipLibCheck": true,
-    "target": "ES6",
-    "types": [
-      "node"
-    ]
+    "skipLibCheck": true
   }
 }
