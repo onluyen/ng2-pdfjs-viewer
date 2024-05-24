@@ -4,7 +4,8 @@
   "$schema": "./node_modules/ng-packagr/package.schema.json",
   "peerDependencies": {
     "@angular/common": "^17.3.9",
-    "@angular/core": "^17.3.9"
+    "@angular/core": "^17.3.9",
+    "ng-packagr": "17.3.0"
   },
   "repository": {
     "type": "git",
