@@ -1,4 +1,4 @@
-import { Component, Input, Output, ViewChild, EventEmitter, ElementRef } from '@angular/core';
+import { Component, Input, Output, ViewChild, EventEmitter, ElementRef, OnDestroy, OnInit } from '@angular/core';
 
 @Component({
   selector: 'ng2-pdfjs-viewer',
@@ -123,7 +123,7 @@ import { Component, Input, Output, ViewChild, EventEmitter, ElementRef } from '@
   <iframe id="iframePDF" #iframePDF title="ng2-pdfjs-viewer" [hidden]="externalWindow || (!externalWindow && !pdfSrc)" width="100%" height="100%"></iframe>
   `
 })
-export class PdfJsViewerComponent {
+export class PdfJsViewerComponent implements OnInit, OnDestroy {
   @ViewChild('viewWordBar', { static: true }) viewWordBar: ElementRef;
   @ViewChild('loadingSpin', { static: true }) loadingSpin: ElementRef;
   @ViewChild('iframeDocx', { static: true }) iframeDocx: ElementRef;
@@ -373,6 +373,8 @@ export class PdfJsViewerComponent {
     this.loadPdf();
   }
 
+  private relaseUrl?: () => void; // Avoid memory leask with `URL.createObjectURL`
+
   private loadPdf() {
     if (!this._src) {
       return;
@@ -568,5 +570,9 @@ export class PdfJsViewerComponent {
     // pagemode = ${this.errorOverride}
     // pagemode = ${this.errorAppend}
     // pagemode = ${this.errorMessage}
+  }
+
+  ngOnDestroy(): void {
+    this.relaseUrl?.();
   }
 }

@@ -1,11 +1,11 @@
 {
   "name": "@onluyen/ng2-pdfjs-viewer",
-  "version": "17.3.9",
+  "version": "17.0.2",
   "$schema": "./node_modules/ng-packagr/package.schema.json",
   "peerDependencies": {
-    "@angular/common": "^17.3.9",
-    "@angular/core": "^17.3.9",
-    "ng-packagr": "17.3.0"
+    "@angular/common": "^17.0.2",
+    "@angular/core": "^17.0.2",
+    "ng-packagr": "^17.0.0"
   },
   "repository": {
     "type": "git",
@@ -28,6 +28,9 @@
   "bugs": {
     "url": "https://github.com/onluyen/ng2-pdfjs-viewer/issues"
   },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
   "module": "fesm2022/onluyen-ng2-pdfjs-viewer.mjs",
   "typings": "index.d.ts",
   "exports": {
@@ -41,8 +44,5 @@
       "default": "./fesm2022/onluyen-ng2-pdfjs-viewer.mjs"
     }
   },
-  "sideEffects": false,
-  "dependencies": {
-    "tslib": "^2.3.0"
-  }
+  "sideEffects": false
 }
