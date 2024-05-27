@@ -1,5 +1,5 @@
 {
-  "name": "@onluyen/ng2-pdfjs-viewer",
+  "name": "onluyen-pdf-viewer",
   "version": "17.0.2",
   "$schema": "./node_modules/ng-packagr/package.schema.json",
   "scripts": {

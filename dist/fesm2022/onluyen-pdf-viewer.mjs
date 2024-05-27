@@ -783,4 +783,4 @@ i0.ɵɵngDeclareClassMetadata({ minVersion: "12.0.0", version: "17.3.10", ngImpo
  */
 
 export { PdfJsViewerComponent, PdfJsViewerModule };
-//# sourceMappingURL=onluyen-ng2-pdfjs-viewer.mjs.map
+//# sourceMappingURL=onluyen-pdf-viewer.mjs.map
