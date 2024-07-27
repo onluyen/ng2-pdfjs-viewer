@@ -1,4 +1,4 @@
-import { EventEmitter, ElementRef, OnDestroy, OnInit } from '@angular/core';
+import { EventEmitter, ElementRef, OnDestroy, OnInit } from "@angular/core";
 import * as i0 from "@angular/core";
 export declare class PdfJsViewerComponent implements OnInit, OnDestroy {
     viewWordBar: ElementRef;
