@@ -43,7 +43,12 @@ class PdfJsViewerComponent {
         }
     }
     set pdfSrc(_src) {
-        this._src = _src;
+        if (typeof _src === "string") {
+            this._src = encodeURIComponent(_src);
+        }
+        else {
+            this._src = _src;
+        }
     }
     get pdfSrc() {
         return this._src;
@@ -57,7 +62,9 @@ class PdfJsViewerComponent {
         }
         else {
             if (this.iframePDF.nativeElement.contentWindow) {
-                pdfViewerOptions = this.iframePDF.nativeElement.contentWindow.PDFViewerApplicationOptions;
+                pdfViewerOptions =
+                    this.iframePDF.nativeElement.contentWindow
+                        .PDFViewerApplicationOptions;
             }
         }
         return pdfViewerOptions;
@@ -71,13 +78,16 @@ class PdfJsViewerComponent {
         }
         else {
             if (this.iframePDF.nativeElement.contentWindow) {
-                pdfViewer = this.iframePDF.nativeElement.contentWindow.PDFViewerApplication;
+                pdfViewer =
+                    this.iframePDF.nativeElement.contentWindow.PDFViewerApplication;
             }
         }
         return pdfViewer;
     }
     receiveMessage(viewerEvent) {
-        if (viewerEvent.data && viewerEvent.data.viewerId && viewerEvent.data.event) {
+        if (viewerEvent.data &&
+            viewerEvent.data.viewerId &&
+            viewerEvent.data.event) {
             let viewerId = viewerEvent.data.viewerId;
             let event = viewerEvent.data.event;
             let param = viewerEvent.data.param;
@@ -100,22 +110,22 @@ class PdfJsViewerComponent {
             this.closeFile.emit(true);
         }
         else if (viewerEvent.data && viewerEvent.data.event === "loaderError") {
-            this.loadingSpin.nativeElement.style.display = 'block';
-            this.iframePDF.nativeElement.style.display = 'none';
-            console.log('load docx!');
+            this.loadingSpin.nativeElement.style.display = "block";
+            this.iframePDF.nativeElement.style.display = "none";
+            console.log("load docx!");
             let url = this.getUrlFile();
-            let ext = this.getFileExtension(url.split('.pdf')[0]);
+            let ext = this.getFileExtension(url.split(".pdf")[0]);
             if (this.isValidFile(ext)) {
-                this.viewWordBar.nativeElement.style.display = 'block';
-                this.viewerUrl = `https://docs.google.com/gview?url=${url.split('.pdf')[0]}&embedded=true`;
-                this.iframeDocx.nativeElement.style.display = 'block';
+                this.viewWordBar.nativeElement.style.display = "block";
+                this.viewerUrl = `https://docs.google.com/gview?url=${url.split(".pdf")[0]}&embedded=true`;
+                this.iframeDocx.nativeElement.style.display = "block";
                 let countTimeload = 0;
                 let checkContent = false;
                 do {
                     this.iframeDocx.nativeElement.src = this.viewerUrl;
                     setTimeout(() => {
-                        let content = this.iframeDocx.nativeElement.contentWindow.document.getElementsByTagName('body')[0].innerHTML;
-                        if (content !== '') {
+                        let content = this.iframeDocx.nativeElement.contentWindow.document.getElementsByTagName("body")[0].innerHTML;
+                        if (content !== "") {
                             checkContent = true;
                             return;
                         }
@@ -126,19 +136,19 @@ class PdfJsViewerComponent {
                     }, 3000 * countTimeload);
                 } while (countTimeload === 4 || checkContent);
                 setTimeout(() => {
-                    this.loadingSpin.nativeElement.style.display = 'none';
+                    this.loadingSpin.nativeElement.style.display = "none";
                 }, 3000 * countTimeload);
             }
         }
     }
     downloadFile(blobUrl, filename) {
-        var a = document.createElement('a');
+        var a = document.createElement("a");
         if (!a.click) {
             throw new Error('DownloadManager: "a.click()" is not supported.');
         }
         a.href = blobUrl;
-        a.target = '_parent';
-        if ('download' in a) {
+        a.target = "_parent";
+        if ("download" in a) {
             a.download = filename;
         }
         (document.body || document.documentElement).appendChild(a);
@@ -146,27 +156,27 @@ class PdfJsViewerComponent {
         a.remove();
     }
     downloadWordFile() {
-        console.log('download file!');
+        console.log("download file!");
         let url = this.getUrlFile();
-        let ext = this.getFileExtension(url.split('.pdf')[0]);
-        console.log(url.split('.pdf')[0]);
+        let ext = this.getFileExtension(url.split(".pdf")[0]);
+        console.log(url.split(".pdf")[0]);
         if (this.isValidFile(ext)) {
-            this.downloadFile(url.split('.pdf')[0], 'test');
+            this.downloadFile(url.split(".pdf")[0], "test");
         }
         else {
-            this.downloadFile(url, 'test');
+            this.downloadFile(url, "test");
         }
     }
     closeWordFile() {
-        console.log('close File!');
+        console.log("close File!");
         this.closeFile.emit(true);
     }
     isValidFile(str) {
         switch (str.toLowerCase()) {
-            case 'doc':
-            case 'docx':
-            case 'xls':
-            case 'xlsx':
+            case "doc":
+            case "docx":
+            case "xls":
+            case "xlsx":
                 return true;
         }
         return false;
@@ -185,30 +195,33 @@ class PdfJsViewerComponent {
     }
     getFileExtension(filename) {
         const ext = /^.+\.([^.]+)$/.exec(filename);
-        return ext == null ? '' : ext[1];
+        return ext == null ? "" : ext[1];
     }
     ngOnInit() {
         window.addEventListener("message", this.receiveMessage.bind(this), false);
-        if (!this.externalWindow) { // Load pdf for embedded views
+        if (!this.externalWindow) {
+            // Load pdf for embedded views
             this.loadPdf();
         }
     }
     refresh() {
+        // Needs to be invoked for external window or when needs to reload pdf
         this.loadPdf();
     }
     loadPdf() {
         if (!this._src) {
             return;
         }
-        this.viewerUrl = '';
-        this.viewWordBar.nativeElement.style.display = 'none';
+        this.viewerUrl = "";
+        this.viewWordBar.nativeElement.style.display = "none";
         // console.log(`Tab is - ${this.viewerTab}`);
         // if (this.viewerTab) {
         //   console.log(`Status of window - ${this.viewerTab.closed}`);
         // }
-        this.iframeDocx.nativeElement.style.display = 'none';
-        if (this.externalWindow && (typeof this.viewerTab === 'undefined' || this.viewerTab.closed)) {
-            this.viewerTab = window.open('', '_blank', this.externalWindowOptions || '');
+        this.iframeDocx.nativeElement.style.display = "none";
+        if (this.externalWindow &&
+            (typeof this.viewerTab === "undefined" || this.viewerTab.closed)) {
+            this.viewerTab = window.open("", "_blank", this.externalWindowOptions || "");
             if (this.viewerTab == null) {
                 if (this.diagnosticLogs)
                     console.error("ng2-pdfjs-viewer: For 'externalWindow = true'. i.e opening in new tab to work, pop-ups should be enabled.");
@@ -250,22 +263,22 @@ class PdfJsViewerComponent {
             this.viewerUrl = `assets/pdfjs/web/viewer.html`;
         }
         this.viewerUrl += `?file=${fileUrl}`;
-        if (typeof this.viewerId !== 'undefined') {
+        if (typeof this.viewerId !== "undefined") {
             this.viewerUrl += `&viewerId=${this.viewerId}`;
         }
-        if (typeof this.onBeforePrint !== 'undefined') {
+        if (typeof this.onBeforePrint !== "undefined") {
             this.viewerUrl += `&beforePrint=true`;
         }
-        if (typeof this.onAfterPrint !== 'undefined') {
+        if (typeof this.onAfterPrint !== "undefined") {
             this.viewerUrl += `&afterPrint=true`;
         }
-        if (typeof this.onDocumentLoad !== 'undefined') {
+        if (typeof this.onDocumentLoad !== "undefined") {
             this.viewerUrl += `&pagesLoaded=true`;
         }
-        if (typeof this.onPageChange !== 'undefined') {
+        if (typeof this.onPageChange !== "undefined") {
             this.viewerUrl += `&pageChange=true`;
         }
-        if (typeof this.closeButton !== 'undefined') {
+        if (typeof this.closeButton !== "undefined") {
             this.viewerUrl += `&closeFile=${this.closeButton}`;
         }
         if (this.downloadFileName) {
@@ -274,31 +287,31 @@ class PdfJsViewerComponent {
             }
             this.viewerUrl += `&fileName=${this.downloadFileName}`;
         }
-        if (typeof this.openFile !== 'undefined') {
+        if (typeof this.openFile !== "undefined") {
             this.viewerUrl += `&openFile=${this.openFile}`;
         }
-        if (typeof this.download !== 'undefined') {
+        if (typeof this.download !== "undefined") {
             this.viewerUrl += `&download=${this.download}`;
         }
         if (this.startDownload) {
             this.viewerUrl += `&startDownload=${this.startDownload}`;
         }
-        if (typeof this.viewBookmark !== 'undefined') {
+        if (typeof this.viewBookmark !== "undefined") {
             this.viewerUrl += `&viewBookmark=${this.viewBookmark}`;
         }
-        if (typeof this.print !== 'undefined') {
+        if (typeof this.print !== "undefined") {
             this.viewerUrl += `&print=${this.print}`;
         }
         if (this.startPrint) {
             this.viewerUrl += `&startPrint=${this.startPrint}`;
         }
-        if (typeof this.fullScreen !== 'undefined') {
+        if (typeof this.fullScreen !== "undefined") {
             this.viewerUrl += `&fullScreen=${this.fullScreen}`;
         }
         // if (this.showFullScreen) {
         //   this.viewerUrl += `&showFullScreen=${this.showFullScreen}`;
         // }
-        if (typeof this.find !== 'undefined') {
+        if (typeof this.find !== "undefined") {
             this.viewerUrl += `&find=${this.find}`;
         }
         if (this.lastPage) {
@@ -384,264 +397,358 @@ class PdfJsViewerComponent {
         // pagemode = ${this.errorMessage}
     }
 }
-PdfJsViewerComponent.ɵfac = i0.ɵɵngDeclareFactory({ minVersion: "12.0.0", version: "15.2.0", ngImport: i0, type: PdfJsViewerComponent, deps: [], target: i0.ɵɵFactoryTarget.Component });
-PdfJsViewerComponent.ɵcmp = i0.ɵɵngDeclareComponent({ minVersion: "14.0.0", version: "15.2.0", type: PdfJsViewerComponent, selector: "ng2-pdfjs-viewer", inputs: { viewerId: "viewerId", viewerFolder: "viewerFolder", externalWindow: "externalWindow", showSpinner: "showSpinner", downloadFileName: "downloadFileName", openFile: "openFile", download: "download", startDownload: "startDownload", viewBookmark: "viewBookmark", print: "print", startPrint: "startPrint", fullScreen: "fullScreen", find: "find", zoom: "zoom", nameddest: "nameddest", pagemode: "pagemode", lastPage: "lastPage", rotatecw: "rotatecw", rotateccw: "rotateccw", cursor: "cursor", scroll: "scroll", spread: "spread", locale: "locale", useOnlyCssZoom: "useOnlyCssZoom", errorOverride: "errorOverride", errorAppend: "errorAppend", errorMessage: "errorMessage", diagnosticLogs: "diagnosticLogs", externalWindowOptions: "externalWindowOptions", closeButton: "closeButton", page: "page", pdfSrc: "pdfSrc" }, outputs: { onBeforePrint: "onBeforePrint", onAfterPrint: "onAfterPrint", onDocumentLoad: "onDocumentLoad", onPageChange: "onPageChange", closeFile: "closeFile" }, viewQueries: [{ propertyName: "viewWordBar", first: true, predicate: ["viewWordBar"], descendants: true, static: true }, { propertyName: "loadingSpin", first: true, predicate: ["loadingSpin"], descendants: true, static: true }, { propertyName: "iframeDocx", first: true, predicate: ["iframeDocx"], descendants: true, static: true }, { propertyName: "iframePDF", first: true, predicate: ["iframePDF"], descendants: true, static: true }], ngImport: i0, template: `
-  <style>
-  .toolbar {
-    position: relative;
-    left: 0;
-    right: 0;
-    z-index: 9999;
-    cursor: default;
-    display: none;
-  }
+PdfJsViewerComponent.ɵfac = i0.ɵɵngDeclareFactory({ minVersion: "12.0.0", version: "15.2.10", ngImport: i0, type: PdfJsViewerComponent, deps: [], target: i0.ɵɵFactoryTarget.Component });
+PdfJsViewerComponent.ɵcmp = i0.ɵɵngDeclareComponent({ minVersion: "14.0.0", version: "15.2.10", type: PdfJsViewerComponent, selector: "ng2-pdfjs-viewer", inputs: { viewerId: "viewerId", viewerFolder: "viewerFolder", externalWindow: "externalWindow", showSpinner: "showSpinner", downloadFileName: "downloadFileName", openFile: "openFile", download: "download", startDownload: "startDownload", viewBookmark: "viewBookmark", print: "print", startPrint: "startPrint", fullScreen: "fullScreen", find: "find", zoom: "zoom", nameddest: "nameddest", pagemode: "pagemode", lastPage: "lastPage", rotatecw: "rotatecw", rotateccw: "rotateccw", cursor: "cursor", scroll: "scroll", spread: "spread", locale: "locale", useOnlyCssZoom: "useOnlyCssZoom", errorOverride: "errorOverride", errorAppend: "errorAppend", errorMessage: "errorMessage", diagnosticLogs: "diagnosticLogs", externalWindowOptions: "externalWindowOptions", closeButton: "closeButton", page: "page", pdfSrc: "pdfSrc" }, outputs: { onBeforePrint: "onBeforePrint", onAfterPrint: "onAfterPrint", onDocumentLoad: "onDocumentLoad", onPageChange: "onPageChange", closeFile: "closeFile" }, viewQueries: [{ propertyName: "viewWordBar", first: true, predicate: ["viewWordBar"], descendants: true, static: true }, { propertyName: "loadingSpin", first: true, predicate: ["loadingSpin"], descendants: true, static: true }, { propertyName: "iframeDocx", first: true, predicate: ["iframeDocx"], descendants: true, static: true }, { propertyName: "iframePDF", first: true, predicate: ["iframePDF"], descendants: true, static: true }], ngImport: i0, template: `
+    <style>
+      .toolbar {
+        position: relative;
+        left: 0;
+        right: 0;
+        z-index: 9999;
+        cursor: default;
+        display: none;
+      }
 
-  #toolbarContainer {
-    width: 100%;
-  }
+      #toolbarContainer {
+        width: 100%;
+      }
 
-  #toolbarContainer {
-    position: relative;
-    height: 32px;
-    background-color: #474747;
-    background-image: linear-gradient(hsla(0,0%,32%,.99), hsla(0,0%,27%,.95));
-  }
+      #toolbarContainer {
+        position: relative;
+        height: 32px;
+        background-color: #474747;
+        background-image: linear-gradient(
+          hsla(0, 0%, 32%, 0.99),
+          hsla(0, 0%, 27%, 0.95)
+        );
+      }
 
-  #toolbarViewer {
-    height: 32px;
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    align-items: center;
-  }
+      #toolbarViewer {
+        height: 32px;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        align-items: center;
+      }
 
-  button{
-    background: none;
-    width: 53px;
-    height: 25px;
-    min-width: 16px;
-    padding: 2px 6px 0;
-    border: 1px solid transparent;
-    border-radius: 2px;
-    color: hsla(0,0%,100%,.8);
-    font-size: 12px;
-    line-height: 14px;
-    -webkit-user-select: none;
-       -moz-user-select: none;
+      button {
+        background: none;
+        width: 53px;
+        height: 25px;
+        min-width: 16px;
+        padding: 2px 6px 0;
+        border: 1px solid transparent;
+        border-radius: 2px;
+        color: hsla(0, 0%, 100%, 0.8);
+        font-size: 12px;
+        line-height: 14px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
         -ms-user-select: none;
-            user-select: none;
-    /* Opera does not support user-select, use <... unselectable="on"> instead */
-    cursor: pointer;
-    transition-property: background-color, border-color, box-shadow;
-    transition-duration: 150ms;
-    transition-timing-function: ease;
-  }
+        user-select: none;
+        /* Opera does not support user-select, use <... unselectable="on"> instead */
+        cursor: pointer;
+        transition-property: background-color, border-color, box-shadow;
+        transition-duration: 150ms;
+        transition-timing-function: ease;
+      }
 
-  button:hover{
-    background-color: hsla(0,0%,0%,.12);
-    background-image: linear-gradient(hsla(0,0%,100%,.05), hsla(0,0%,100%,0));
-    background-clip: padding-box;
-    border: 1px solid hsla(0,0%,0%,.35);
-    border-color: hsla(0,0%,0%,.32) hsla(0,0%,0%,.38) hsla(0,0%,0%,.42);
-    box-shadow: 0 1px 0 hsla(0,0%,100%,.05) inset,
-                0 0 1px hsla(0,0%,100%,.15) inset,
-                0 1px 0 hsla(0,0%,100%,.05);
-  }
+      button:hover {
+        background-color: hsla(0, 0%, 0%, 0.12);
+        background-image: linear-gradient(
+          hsla(0, 0%, 100%, 0.05),
+          hsla(0, 0%, 100%, 0)
+        );
+        background-clip: padding-box;
+        border: 1px solid hsla(0, 0%, 0%, 0.35);
+        border-color: hsla(0, 0%, 0%, 0.32) hsla(0, 0%, 0%, 0.38)
+          hsla(0, 0%, 0%, 0.42);
+        box-shadow: 0 1px 0 hsla(0, 0%, 100%, 0.05) inset,
+          0 0 1px hsla(0, 0%, 100%, 0.15) inset, 0 1px 0 hsla(0, 0%, 100%, 0.05);
+      }
 
-  .loadingSpin{
-    display: none;
-    position: relative;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, .25);
-    z-index: 1000; 
-  }
+      .loadingSpin {
+        display: none;
+        position: relative;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.25);
+        z-index: 1000;
+      }
 
-  .loader {
-    z-index: 1001; 
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    border: 16px solid #f3f3f3;
-    border-radius: 50%;
-    border-top: 16px solid #3498db;
-    width: 120px;
-    height: 120px;
-    -webkit-animation: spin 2s linear infinite; /* Safari */
-    animation: spin 2s linear infinite;
-  }
-  
-  /* Safari */
-  @-webkit-keyframes spin {
-    0% { -webkit-transform: rotate(0deg); }
-    100% { -webkit-transform: rotate(360deg); }
-  }
-  
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-  </style>
-  <div #viewWordBar class="toolbar">
-    <div id="toolbarContainer">
-      <div id="toolbarViewer">
-          <button id="download" (click)="downloadWordFile()" class="toolbarButton download" title="Download" tabindex="34" data-l10n-id="download">
-            <img src="/assets/pdfjs/web/images/toolbarButton-download.png" alt="Download"/>
+      .loader {
+        z-index: 1001;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        border: 16px solid #f3f3f3;
+        border-radius: 50%;
+        border-top: 16px solid #3498db;
+        width: 120px;
+        height: 120px;
+        -webkit-animation: spin 2s linear infinite; /* Safari */
+        animation: spin 2s linear infinite;
+      }
+
+      /* Safari */
+      @-webkit-keyframes spin {
+        0% {
+          -webkit-transform: rotate(0deg);
+        }
+        100% {
+          -webkit-transform: rotate(360deg);
+        }
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+    <div #viewWordBar class="toolbar">
+      <div id="toolbarContainer">
+        <div id="toolbarViewer">
+          <button
+            id="download"
+            (click)="downloadWordFile()"
+            class="toolbarButton download"
+            title="Download"
+            tabindex="34"
+            data-l10n-id="download"
+          >
+            <img
+              src="/assets/pdfjs/web/images/toolbarButton-download.png"
+              alt="Download"
+            />
           </button>
-                
-          <button id="closeFile" (click)="closeWordFile()" class="toolbarButton" title="Close" tabindex="36" data-l10n-id="closeFile">
-          <img src="/assets/pdfjs/web/images/close-file.png" alt="Close"/>
+
+          <button
+            id="closeFile"
+            (click)="closeWordFile()"
+            class="toolbarButton"
+            title="Close"
+            tabindex="36"
+            data-l10n-id="closeFile"
+          >
+            <img src="/assets/pdfjs/web/images/close-file.png" alt="Close" />
           </button>
         </div>
       </div>
-  </div>
-  <div #loadingSpin class="loadingSpin">
-    <div class="loader"></div>
-  </div>
-  <iframe id="iframeDocx" #iframeDocx title="ng2-pdfjs-viewer" [hidden]="externalWindow || (!externalWindow && !pdfSrc)" #iframe width="100%" height="100%"></iframe>
+    </div>
+    <div #loadingSpin class="loadingSpin">
+      <div class="loader"></div>
+    </div>
+    <iframe
+      id="iframeDocx"
+      #iframeDocx
+      title="ng2-pdfjs-viewer"
+      [hidden]="externalWindow || (!externalWindow && !pdfSrc)"
+      #iframe
+      width="100%"
+      height="100%"
+    ></iframe>
 
-  <iframe id="iframePDF" #iframePDF title="ng2-pdfjs-viewer" [hidden]="externalWindow || (!externalWindow && !pdfSrc)" #iframe width="100%" height="100%"></iframe>
-  `, isInline: true, styles: ["\n  .toolbar {\n    position: relative;\n    left: 0;\n    right: 0;\n    z-index: 9999;\n    cursor: default;\n    display: none;\n  }\n\n  #toolbarContainer {\n    width: 100%;\n  }\n\n  #toolbarContainer {\n    position: relative;\n    height: 32px;\n    background-color: #474747;\n    background-image: linear-gradient(hsla(0,0%,32%,.99), hsla(0,0%,27%,.95));\n  }\n\n  #toolbarViewer {\n    height: 32px;\n    display: flex;\n    flex-direction: row;\n    justify-content: flex-end;\n    align-items: center;\n  }\n\n  button{\n    background: none;\n    width: 53px;\n    height: 25px;\n    min-width: 16px;\n    padding: 2px 6px 0;\n    border: 1px solid transparent;\n    border-radius: 2px;\n    color: hsla(0,0%,100%,.8);\n    font-size: 12px;\n    line-height: 14px;\n    -webkit-user-select: none;\n       -moz-user-select: none;\n        -ms-user-select: none;\n            user-select: none;\n    /* Opera does not support user-select, use <... unselectable=\"on\"> instead */\n    cursor: pointer;\n    transition-property: background-color, border-color, box-shadow;\n    transition-duration: 150ms;\n    transition-timing-function: ease;\n  }\n\n  button:hover{\n    background-color: hsla(0,0%,0%,.12);\n    background-image: linear-gradient(hsla(0,0%,100%,.05), hsla(0,0%,100%,0));\n    background-clip: padding-box;\n    border: 1px solid hsla(0,0%,0%,.35);\n    border-color: hsla(0,0%,0%,.32) hsla(0,0%,0%,.38) hsla(0,0%,0%,.42);\n    box-shadow: 0 1px 0 hsla(0,0%,100%,.05) inset,\n                0 0 1px hsla(0,0%,100%,.15) inset,\n                0 1px 0 hsla(0,0%,100%,.05);\n  }\n\n  .loadingSpin{\n    display: none;\n    position: relative;\n    top: 0;\n    left: 0;\n    width: 100vw;\n    height: 100vh;\n    background-color: rgba(0, 0, 0, .25);\n    z-index: 1000; \n  }\n\n  .loader {\n    z-index: 1001; \n    position: absolute;\n    left: 50%;\n    top: 50%;\n    transform: translate(-50%, -50%);\n    border: 16px solid #f3f3f3;\n    border-radius: 50%;\n    border-top: 16px solid #3498db;\n    width: 120px;\n    height: 120px;\n    -webkit-animation: spin 2s linear infinite; /* Safari */\n    animation: spin 2s linear infinite;\n  }\n  \n  /* Safari */\n  @-webkit-keyframes spin {\n    0% { -webkit-transform: rotate(0deg); }\n    100% { -webkit-transform: rotate(360deg); }\n  }\n  \n  @keyframes spin {\n    0% { transform: rotate(0deg); }\n    100% { transform: rotate(360deg); }\n  }\n  "] });
-i0.ɵɵngDeclareClassMetadata({ minVersion: "12.0.0", version: "15.2.0", ngImport: i0, type: PdfJsViewerComponent, decorators: [{
+    <iframe
+      id="iframePDF"
+      #iframePDF
+      title="ng2-pdfjs-viewer"
+      [hidden]="externalWindow || (!externalWindow && !pdfSrc)"
+      #iframe
+      width="100%"
+      height="100%"
+    ></iframe>
+  `, isInline: true, styles: ["\n      .toolbar {\n        position: relative;\n        left: 0;\n        right: 0;\n        z-index: 9999;\n        cursor: default;\n        display: none;\n      }\n\n      #toolbarContainer {\n        width: 100%;\n      }\n\n      #toolbarContainer {\n        position: relative;\n        height: 32px;\n        background-color: #474747;\n        background-image: linear-gradient(\n          hsla(0, 0%, 32%, 0.99),\n          hsla(0, 0%, 27%, 0.95)\n        );\n      }\n\n      #toolbarViewer {\n        height: 32px;\n        display: flex;\n        flex-direction: row;\n        justify-content: flex-end;\n        align-items: center;\n      }\n\n      button {\n        background: none;\n        width: 53px;\n        height: 25px;\n        min-width: 16px;\n        padding: 2px 6px 0;\n        border: 1px solid transparent;\n        border-radius: 2px;\n        color: hsla(0, 0%, 100%, 0.8);\n        font-size: 12px;\n        line-height: 14px;\n        -webkit-user-select: none;\n        -moz-user-select: none;\n        -ms-user-select: none;\n        user-select: none;\n        /* Opera does not support user-select, use <... unselectable=\"on\"> instead */\n        cursor: pointer;\n        transition-property: background-color, border-color, box-shadow;\n        transition-duration: 150ms;\n        transition-timing-function: ease;\n      }\n\n      button:hover {\n        background-color: hsla(0, 0%, 0%, 0.12);\n        background-image: linear-gradient(\n          hsla(0, 0%, 100%, 0.05),\n          hsla(0, 0%, 100%, 0)\n        );\n        background-clip: padding-box;\n        border: 1px solid hsla(0, 0%, 0%, 0.35);\n        border-color: hsla(0, 0%, 0%, 0.32) hsla(0, 0%, 0%, 0.38)\n          hsla(0, 0%, 0%, 0.42);\n        box-shadow: 0 1px 0 hsla(0, 0%, 100%, 0.05) inset,\n          0 0 1px hsla(0, 0%, 100%, 0.15) inset, 0 1px 0 hsla(0, 0%, 100%, 0.05);\n      }\n\n      .loadingSpin {\n        display: none;\n        position: relative;\n        top: 0;\n        left: 0;\n        width: 100%;\n        height: 100%;\n        background-color: rgba(0, 0, 0, 0.25);\n        z-index: 1000;\n      }\n\n      .loader {\n        z-index: 1001;\n        position: absolute;\n        left: 50%;\n        top: 50%;\n        transform: translate(-50%, -50%);\n        border: 16px solid #f3f3f3;\n        border-radius: 50%;\n        border-top: 16px solid #3498db;\n        width: 120px;\n        height: 120px;\n        -webkit-animation: spin 2s linear infinite; /* Safari */\n        animation: spin 2s linear infinite;\n      }\n\n      /* Safari */\n      @-webkit-keyframes spin {\n        0% {\n          -webkit-transform: rotate(0deg);\n        }\n        100% {\n          -webkit-transform: rotate(360deg);\n        }\n      }\n\n      @keyframes spin {\n        0% {\n          transform: rotate(0deg);\n        }\n        100% {\n          transform: rotate(360deg);\n        }\n      }\n    "] });
+i0.ɵɵngDeclareClassMetadata({ minVersion: "12.0.0", version: "15.2.10", ngImport: i0, type: PdfJsViewerComponent, decorators: [{
             type: Component,
             args: [{
-                    selector: 'ng2-pdfjs-viewer',
+                    selector: "ng2-pdfjs-viewer",
                     template: `
-  <style>
-  .toolbar {
-    position: relative;
-    left: 0;
-    right: 0;
-    z-index: 9999;
-    cursor: default;
-    display: none;
-  }
+    <style>
+      .toolbar {
+        position: relative;
+        left: 0;
+        right: 0;
+        z-index: 9999;
+        cursor: default;
+        display: none;
+      }
 
-  #toolbarContainer {
-    width: 100%;
-  }
+      #toolbarContainer {
+        width: 100%;
+      }
 
-  #toolbarContainer {
-    position: relative;
-    height: 32px;
-    background-color: #474747;
-    background-image: linear-gradient(hsla(0,0%,32%,.99), hsla(0,0%,27%,.95));
-  }
+      #toolbarContainer {
+        position: relative;
+        height: 32px;
+        background-color: #474747;
+        background-image: linear-gradient(
+          hsla(0, 0%, 32%, 0.99),
+          hsla(0, 0%, 27%, 0.95)
+        );
+      }
 
-  #toolbarViewer {
-    height: 32px;
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    align-items: center;
-  }
+      #toolbarViewer {
+        height: 32px;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        align-items: center;
+      }
 
-  button{
-    background: none;
-    width: 53px;
-    height: 25px;
-    min-width: 16px;
-    padding: 2px 6px 0;
-    border: 1px solid transparent;
-    border-radius: 2px;
-    color: hsla(0,0%,100%,.8);
-    font-size: 12px;
-    line-height: 14px;
-    -webkit-user-select: none;
-       -moz-user-select: none;
+      button {
+        background: none;
+        width: 53px;
+        height: 25px;
+        min-width: 16px;
+        padding: 2px 6px 0;
+        border: 1px solid transparent;
+        border-radius: 2px;
+        color: hsla(0, 0%, 100%, 0.8);
+        font-size: 12px;
+        line-height: 14px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
         -ms-user-select: none;
-            user-select: none;
-    /* Opera does not support user-select, use <... unselectable="on"> instead */
-    cursor: pointer;
-    transition-property: background-color, border-color, box-shadow;
-    transition-duration: 150ms;
-    transition-timing-function: ease;
-  }
+        user-select: none;
+        /* Opera does not support user-select, use <... unselectable="on"> instead */
+        cursor: pointer;
+        transition-property: background-color, border-color, box-shadow;
+        transition-duration: 150ms;
+        transition-timing-function: ease;
+      }
 
-  button:hover{
-    background-color: hsla(0,0%,0%,.12);
-    background-image: linear-gradient(hsla(0,0%,100%,.05), hsla(0,0%,100%,0));
-    background-clip: padding-box;
-    border: 1px solid hsla(0,0%,0%,.35);
-    border-color: hsla(0,0%,0%,.32) hsla(0,0%,0%,.38) hsla(0,0%,0%,.42);
-    box-shadow: 0 1px 0 hsla(0,0%,100%,.05) inset,
-                0 0 1px hsla(0,0%,100%,.15) inset,
-                0 1px 0 hsla(0,0%,100%,.05);
-  }
+      button:hover {
+        background-color: hsla(0, 0%, 0%, 0.12);
+        background-image: linear-gradient(
+          hsla(0, 0%, 100%, 0.05),
+          hsla(0, 0%, 100%, 0)
+        );
+        background-clip: padding-box;
+        border: 1px solid hsla(0, 0%, 0%, 0.35);
+        border-color: hsla(0, 0%, 0%, 0.32) hsla(0, 0%, 0%, 0.38)
+          hsla(0, 0%, 0%, 0.42);
+        box-shadow: 0 1px 0 hsla(0, 0%, 100%, 0.05) inset,
+          0 0 1px hsla(0, 0%, 100%, 0.15) inset, 0 1px 0 hsla(0, 0%, 100%, 0.05);
+      }
 
-  .loadingSpin{
-    display: none;
-    position: relative;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, .25);
-    z-index: 1000; 
-  }
+      .loadingSpin {
+        display: none;
+        position: relative;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.25);
+        z-index: 1000;
+      }
 
-  .loader {
-    z-index: 1001; 
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    border: 16px solid #f3f3f3;
-    border-radius: 50%;
-    border-top: 16px solid #3498db;
-    width: 120px;
-    height: 120px;
-    -webkit-animation: spin 2s linear infinite; /* Safari */
-    animation: spin 2s linear infinite;
-  }
-  
-  /* Safari */
-  @-webkit-keyframes spin {
-    0% { -webkit-transform: rotate(0deg); }
-    100% { -webkit-transform: rotate(360deg); }
-  }
-  
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-  </style>
-  <div #viewWordBar class="toolbar">
-    <div id="toolbarContainer">
-      <div id="toolbarViewer">
-          <button id="download" (click)="downloadWordFile()" class="toolbarButton download" title="Download" tabindex="34" data-l10n-id="download">
-            <img src="/assets/pdfjs/web/images/toolbarButton-download.png" alt="Download"/>
+      .loader {
+        z-index: 1001;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        border: 16px solid #f3f3f3;
+        border-radius: 50%;
+        border-top: 16px solid #3498db;
+        width: 120px;
+        height: 120px;
+        -webkit-animation: spin 2s linear infinite; /* Safari */
+        animation: spin 2s linear infinite;
+      }
+
+      /* Safari */
+      @-webkit-keyframes spin {
+        0% {
+          -webkit-transform: rotate(0deg);
+        }
+        100% {
+          -webkit-transform: rotate(360deg);
+        }
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+    <div #viewWordBar class="toolbar">
+      <div id="toolbarContainer">
+        <div id="toolbarViewer">
+          <button
+            id="download"
+            (click)="downloadWordFile()"
+            class="toolbarButton download"
+            title="Download"
+            tabindex="34"
+            data-l10n-id="download"
+          >
+            <img
+              src="/assets/pdfjs/web/images/toolbarButton-download.png"
+              alt="Download"
+            />
           </button>
-                
-          <button id="closeFile" (click)="closeWordFile()" class="toolbarButton" title="Close" tabindex="36" data-l10n-id="closeFile">
-          <img src="/assets/pdfjs/web/images/close-file.png" alt="Close"/>
+
+          <button
+            id="closeFile"
+            (click)="closeWordFile()"
+            class="toolbarButton"
+            title="Close"
+            tabindex="36"
+            data-l10n-id="closeFile"
+          >
+            <img src="/assets/pdfjs/web/images/close-file.png" alt="Close" />
           </button>
         </div>
       </div>
-  </div>
-  <div #loadingSpin class="loadingSpin">
-    <div class="loader"></div>
-  </div>
-  <iframe id="iframeDocx" #iframeDocx title="ng2-pdfjs-viewer" [hidden]="externalWindow || (!externalWindow && !pdfSrc)" #iframe width="100%" height="100%"></iframe>
+    </div>
+    <div #loadingSpin class="loadingSpin">
+      <div class="loader"></div>
+    </div>
+    <iframe
+      id="iframeDocx"
+      #iframeDocx
+      title="ng2-pdfjs-viewer"
+      [hidden]="externalWindow || (!externalWindow && !pdfSrc)"
+      #iframe
+      width="100%"
+      height="100%"
+    ></iframe>
 
-  <iframe id="iframePDF" #iframePDF title="ng2-pdfjs-viewer" [hidden]="externalWindow || (!externalWindow && !pdfSrc)" #iframe width="100%" height="100%"></iframe>
-  `
+    <iframe
+      id="iframePDF"
+      #iframePDF
+      title="ng2-pdfjs-viewer"
+      [hidden]="externalWindow || (!externalWindow && !pdfSrc)"
+      #iframe
+      width="100%"
+      height="100%"
+    ></iframe>
+  `,
                 }]
         }], propDecorators: { viewWordBar: [{
                 type: ViewChild,
-                args: ['viewWordBar', { static: true }]
+                args: ["viewWordBar", { static: true }]
             }], loadingSpin: [{
                 type: ViewChild,
-                args: ['loadingSpin', { static: true }]
+                args: ["loadingSpin", { static: true }]
             }], iframeDocx: [{
                 type: ViewChild,
-                args: ['iframeDocx', { static: true }]
+                args: ["iframeDocx", { static: true }]
             }], iframePDF: [{
                 type: ViewChild,
-                args: ['iframePDF', { static: true }]
+                args: ["iframePDF", { static: true }]
             }], viewerId: [{
                 type: Input
             }], onBeforePrint: [{
@@ -725,10 +832,10 @@ class PdfJsViewerModule {
         };
     }
 }
-PdfJsViewerModule.ɵfac = i0.ɵɵngDeclareFactory({ minVersion: "12.0.0", version: "15.2.0", ngImport: i0, type: PdfJsViewerModule, deps: [], target: i0.ɵɵFactoryTarget.NgModule });
-PdfJsViewerModule.ɵmod = i0.ɵɵngDeclareNgModule({ minVersion: "14.0.0", version: "15.2.0", ngImport: i0, type: PdfJsViewerModule, declarations: [PdfJsViewerComponent], imports: [CommonModule], exports: [PdfJsViewerComponent] });
-PdfJsViewerModule.ɵinj = i0.ɵɵngDeclareInjector({ minVersion: "12.0.0", version: "15.2.0", ngImport: i0, type: PdfJsViewerModule, imports: [CommonModule] });
-i0.ɵɵngDeclareClassMetadata({ minVersion: "12.0.0", version: "15.2.0", ngImport: i0, type: PdfJsViewerModule, decorators: [{
+PdfJsViewerModule.ɵfac = i0.ɵɵngDeclareFactory({ minVersion: "12.0.0", version: "15.2.10", ngImport: i0, type: PdfJsViewerModule, deps: [], target: i0.ɵɵFactoryTarget.NgModule });
+PdfJsViewerModule.ɵmod = i0.ɵɵngDeclareNgModule({ minVersion: "14.0.0", version: "15.2.10", ngImport: i0, type: PdfJsViewerModule, declarations: [PdfJsViewerComponent], imports: [CommonModule], exports: [PdfJsViewerComponent] });
+PdfJsViewerModule.ɵinj = i0.ɵɵngDeclareInjector({ minVersion: "12.0.0", version: "15.2.10", ngImport: i0, type: PdfJsViewerModule, imports: [CommonModule] });
+i0.ɵɵngDeclareClassMetadata({ minVersion: "12.0.0", version: "15.2.10", ngImport: i0, type: PdfJsViewerModule, decorators: [{
             type: NgModule,
             args: [{
                     imports: [
