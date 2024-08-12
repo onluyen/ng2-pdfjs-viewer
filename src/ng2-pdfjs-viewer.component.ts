@@ -322,14 +322,18 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
       this.iframePDF.nativeElement.style.display = "none";
 
       let url = this.getUrlFile();
-      let ext = this.getFileExtension(url.split(".pdf")[0]);
-      if (this.isValidFile(ext)) {
-        console.log(url.split(".pdf")[0]);
+      let ext = this.getFileExtension(url);
 
+      if (this.isValidFile(ext)) {
+        const _urlFile = decodeURIComponent(url);
+        const _checkExtWithoutPdf = this.isValidFile(
+          this.getFileExtension(_urlFile.split(".pdf")[0])
+        );
+        if (_checkExtWithoutPdf) {
+          _urlFile.replace(".pdf", "");
+        }
         this.viewWordBar.nativeElement.style.display = "block";
-        this.viewerUrl = `https://docs.google.com/gview?url=${
-          url.split(".pdf")[0]
-        }&embedded=true`;
+        this.viewerUrl = `https://docs.google.com/gview?url=${_urlFile}&embedded=true`;
         this.iframeDocx.nativeElement.style.display = "block";
 
         let countTimeload = 0;
@@ -353,9 +357,7 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
           } while (countTimeload === 4 || checkContent);
 
           if (!checkContent) {
-            this.viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${
-              url.split(".pdf")[0]
-            }`;
+            this.viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${_urlFile}`;
             this.iframeDocx.nativeElement.src = this.viewerUrl;
           } else {
             alert("Hiện tại chưa xem được file!");
@@ -389,13 +391,7 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
   public downloadWordFile() {
     console.log("download file!");
     let url = this.getUrlFile();
-    let ext = this.getFileExtension(url.split(".pdf")[0]);
-    console.log(url.split(".pdf")[0]);
-    if (this.isValidFile(ext)) {
-      this.downloadFile(url.split(".pdf")[0], "test");
-    } else {
-      this.downloadFile(url, "test");
-    }
+    this.downloadFile(url, "test");
   }
 
   public closeWordFile() {
@@ -428,8 +424,10 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
   }
 
   getFileExtension(filename) {
-    const ext = /^.+\.([^.]+)$/.exec(filename);
-    return ext == null ? "" : ext[1];
+    // return decodeURIComponent(filename).split("/").pop().split(".").pop();
+    return decodeURIComponent(filename).split("?")[0].split(".").pop();
+    // const ext = /^.+\.([^.]+)$/.exec(filename);
+    // return ext == null ? "" : ext[1];
   }
 
   ngOnInit(): void {
