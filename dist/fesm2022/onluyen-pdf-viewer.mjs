@@ -205,6 +205,7 @@ class PdfJsViewerComponent {
     }
     isValidFile(str) {
         switch (str.toLowerCase()) {
+            case "pdf":
             case "doc":
             case "docx":
             case "xls":

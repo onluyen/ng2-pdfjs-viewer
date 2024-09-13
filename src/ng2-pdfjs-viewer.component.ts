@@ -323,7 +323,6 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 
       let url = this.getUrlFile();
       let ext = this.getFileExtension(url);
-
       if (this.isValidFile(ext)) {
         const _urlFile = decodeURIComponent(url);
         const _checkExtWithoutPdf = this.isValidFile(
@@ -401,6 +400,7 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 
   isValidFile(str) {
     switch (str.toLowerCase()) {
+      case "pdf":
       case "doc":
       case "docx":
       case "xls":
