@@ -333,7 +333,7 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
           _urlFile.replace(".pdf", "");
         }
         this.viewWordBar.nativeElement.style.display = "block";
-        this.viewerUrl = `https://docs.google.com/gview?url=${_urlFile}&embedded=true`;
+        this.viewerUrl = `https://docs.google.com/gview?url=${url}&embedded=true`;
         this.iframeDocx.nativeElement.style.display = "block";
 
         let countTimeload = 0;
@@ -357,7 +357,7 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
           } while (countTimeload === 4 || checkContent);
 
           if (!checkContent) {
-            this.viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${_urlFile}`;
+            this.viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${url}`;
             this.iframeDocx.nativeElement.src = this.viewerUrl;
           } else {
             alert("Hiện tại chưa xem được file!");
