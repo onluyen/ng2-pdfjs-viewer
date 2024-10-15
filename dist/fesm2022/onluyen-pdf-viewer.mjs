@@ -1,5 +1,6 @@
 import * as i0 from '@angular/core';
 import { EventEmitter, Component, ViewChild, Input, Output, NgModule } from '@angular/core';
+import * as i1 from '@angular/common';
 import { CommonModule } from '@angular/common';
 
 class PdfJsViewerComponent {
@@ -139,55 +140,47 @@ class PdfJsViewerComponent {
                 if (_checkExtWithoutPdf) {
                     _urlFile.replace(".pdf", "");
                 }
-                // Hiển thị thanh công cụ và iframe
                 this.viewWordBar.nativeElement.style.display = "block";
                 this.iframeDocx.nativeElement.style.display = "block";
-                // Đặt URL ban đầu cho iframe
                 this.viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${_urlFile}`;
                 this.iframeDocx.nativeElement.src = this.viewerUrl;
-                // Đảm bảo rằng loading spinner sẽ tắt khi iframe tải xong
-                this.iframeDocx.nativeElement.onload = () => {
+                this.iframeDocx.nativeElement.addEventListener("load", () => {
                     const content = this.iframeDocx.nativeElement?.contentWindow?.document?.body?.innerHTML;
                     console.log("content: " + content);
                     if (!content) {
                         this.viewerUrl = `https://docs.google.com/gview?url=${_urlFile}&embedded=true`;
                         this.iframeDocx.nativeElement.src = this.viewerUrl;
                     }
-                    // Đảm bảo spinner tắt khi tải xong bất kỳ URL nào
-                    if (this.loadingSpin && this.loadingSpin.nativeElement) {
-                        this.loadingSpin.nativeElement.style.display = "none";
-                    }
-                };
-                // Dự phòng: Tắt spinner sau khoảng thời gian tối đa (ví dụ: 10 giây)
-                setTimeout(() => {
-                    if (this.loadingSpin && this.loadingSpin.nativeElement) {
-                        this.loadingSpin.nativeElement.style.display = "none";
-                    }
-                }, 10000);
+                    setTimeout(() => {
+                        if (this.loadingSpin && this.loadingSpin.nativeElement) {
+                            this.loadingSpin.nativeElement.style.display = "none";
+                        }
+                    }, 1000);
+                });
+                // setTimeout(() => {
+                // 	if (this.loadingSpin && this.loadingSpin.nativeElement) {
+                // 		this.loadingSpin.nativeElement.style.display = "none";
+                // 	}
+                // }, 3000);
             }
             else {
                 console.log("Định dạng không hợp lệ!");
             }
         }
     }
-    downloadFile(blobUrl, filename) {
-        var a = document.createElement("a");
-        if (!a.click) {
-            throw new Error('DownloadManager: "a.click()" is not supported.');
-        }
-        a.href = blobUrl;
-        a.target = "_parent";
-        if ("download" in a) {
-            a.download = filename;
-        }
-        (document.body || document.documentElement).appendChild(a);
-        a.click();
-        a.remove();
-    }
-    downloadWordFile() {
-        console.log("download file!");
+    downloadFile() {
         let url = this.getUrlFile();
-        this.downloadFile(url, "test");
+        if (url) {
+            fetch(url).then((t) => {
+                return t.blob().then((b) => {
+                    const a = document.createElement("a");
+                    a.href = URL.createObjectURL(b);
+                    a.setAttribute("download", this.downloadFileName ? `${this.downloadFileName}.${this.getFileExtension(url)}` : `download_file.${this.getFileExtension(url)}`);
+                    a.click();
+                    a.remove();
+                });
+            });
+        }
     }
     closeWordFile() {
         console.log("close File!");
@@ -433,11 +426,11 @@ class PdfJsViewerComponent {
         this.relaseUrl?.();
     }
     static ɵfac = i0.ɵɵngDeclareFactory({ minVersion: "12.0.0", version: "17.3.12", ngImport: i0, type: PdfJsViewerComponent, deps: [], target: i0.ɵɵFactoryTarget.Component });
-    static ɵcmp = i0.ɵɵngDeclareComponent({ minVersion: "14.0.0", version: "17.3.12", type: PdfJsViewerComponent, selector: "ng2-pdfjs-viewer", inputs: { viewerId: "viewerId", viewerFolder: "viewerFolder", externalWindow: "externalWindow", showSpinner: "showSpinner", downloadFileName: "downloadFileName", openFile: "openFile", download: "download", startDownload: "startDownload", viewBookmark: "viewBookmark", print: "print", startPrint: "startPrint", fullScreen: "fullScreen", find: "find", zoom: "zoom", nameddest: "nameddest", pagemode: "pagemode", lastPage: "lastPage", rotatecw: "rotatecw", rotateccw: "rotateccw", cursor: "cursor", scroll: "scroll", spread: "spread", locale: "locale", useOnlyCssZoom: "useOnlyCssZoom", errorOverride: "errorOverride", errorAppend: "errorAppend", errorMessage: "errorMessage", diagnosticLogs: "diagnosticLogs", externalWindowOptions: "externalWindowOptions", closeButton: "closeButton", page: "page", pdfSrc: "pdfSrc" }, outputs: { onBeforePrint: "onBeforePrint", onAfterPrint: "onAfterPrint", onDocumentLoad: "onDocumentLoad", onPageChange: "onPageChange", closeFile: "closeFile" }, viewQueries: [{ propertyName: "viewWordBar", first: true, predicate: ["viewWordBar"], descendants: true, static: true }, { propertyName: "loadingSpin", first: true, predicate: ["loadingSpin"], descendants: true, static: true }, { propertyName: "iframeDocx", first: true, predicate: ["iframeDocx"], descendants: true, static: true }, { propertyName: "iframePDF", first: true, predicate: ["iframePDF"], descendants: true, static: true }], ngImport: i0, template: "<div #viewWordBar class=\"toolbar\">\r\n\t<div id=\"toolbarContainer\">\r\n\t\t<div id=\"toolbarViewer\">\r\n\t\t\t<button id=\"download\" (click)=\"downloadWordFile()\" class=\"toolbarButton download\" title=\"Download\" tabindex=\"34\" data-l10n-id=\"download\">\r\n\t\t\t\t<img src=\"/assets/pdfjs/web/images/toolbarButton-download.png\" alt=\"Download\" />\r\n\t\t\t</button>\r\n\r\n\t\t\t<button id=\"closeFile\" (click)=\"closeWordFile()\" class=\"toolbarButton\" title=\"Close\" tabindex=\"36\" data-l10n-id=\"closeFile\">\r\n\t\t\t\t<img src=\"/assets/pdfjs/web/images/close-file.png\" alt=\"Close\" />\r\n\t\t\t</button>\r\n\t\t</div>\r\n\t</div>\r\n</div>\r\n<div #loadingSpin class=\"loadingSpin\">\r\n\t<div class=\"loader\"></div>\r\n</div>\r\n<iframe id=\"iframeDocx\" #iframeDocx title=\"ng2-pdfjs-viewer\" [hidden]=\"externalWindow || (!externalWindow && !pdfSrc)\" width=\"100%\" height=\"100%\"></iframe>\r\n\r\n<iframe id=\"iframePDF\" #iframePDF title=\"ng2-pdfjs-viewer\" [hidden]=\"externalWindow || (!externalWindow && !pdfSrc)\" width=\"100%\" height=\"100%\"></iframe>\r\n", styles: [".toolbar{position:relative;left:0;right:0;z-index:9999;cursor:default;display:none}#toolbarContainer{width:100%}#toolbarContainer{position:relative;height:32px;background-color:#474747;background-image:linear-gradient(#525252fc,#454545f2)}#toolbarViewer{height:32px;display:flex;flex-direction:row;justify-content:flex-end;align-items:center}button{background:none;width:53px;height:25px;min-width:16px;padding:2px 6px 0;border:1px solid transparent;border-radius:2px;color:#fffc;font-size:12px;line-height:14px;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;cursor:pointer;transition-property:background-color,border-color,box-shadow;transition-duration:.15s;transition-timing-function:ease}button:hover{background-color:#0000001f;background-image:linear-gradient(#ffffff0d,#fff0);background-clip:padding-box;border:1px solid hsla(0,0%,0%,.35);border-color:hsla(0,0%,0%,.32) hsla(0,0%,0%,.38) hsla(0,0%,0%,.42);box-shadow:0 1px #ffffff0d inset,0 0 1px #ffffff26 inset,0 1px #ffffff0d}.loadingSpin{display:none;position:relative;top:0;left:0;width:100%;height:100%;background-color:#00000040;z-index:1000}.loader{z-index:1001;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border:16px solid #f3f3f3;border-radius:50%;border-top:16px solid #3498db;width:120px;height:120px;-webkit-animation:spin 2s linear infinite;animation:spin 2s linear infinite}@-webkit-keyframes spin{0%{-webkit-transform:rotate(0deg)}to{-webkit-transform:rotate(360deg)}}@keyframes spin{0%{transform:rotate(0)}to{transform:rotate(360deg)}}\n"] });
+    static ɵcmp = i0.ɵɵngDeclareComponent({ minVersion: "14.0.0", version: "17.3.12", type: PdfJsViewerComponent, selector: "ng2-pdfjs-viewer", inputs: { viewerId: "viewerId", viewerFolder: "viewerFolder", externalWindow: "externalWindow", showSpinner: "showSpinner", downloadFileName: "downloadFileName", openFile: "openFile", download: "download", startDownload: "startDownload", viewBookmark: "viewBookmark", print: "print", startPrint: "startPrint", fullScreen: "fullScreen", find: "find", zoom: "zoom", nameddest: "nameddest", pagemode: "pagemode", lastPage: "lastPage", rotatecw: "rotatecw", rotateccw: "rotateccw", cursor: "cursor", scroll: "scroll", spread: "spread", locale: "locale", useOnlyCssZoom: "useOnlyCssZoom", errorOverride: "errorOverride", errorAppend: "errorAppend", errorMessage: "errorMessage", diagnosticLogs: "diagnosticLogs", externalWindowOptions: "externalWindowOptions", closeButton: "closeButton", page: "page", pdfSrc: "pdfSrc" }, outputs: { onBeforePrint: "onBeforePrint", onAfterPrint: "onAfterPrint", onDocumentLoad: "onDocumentLoad", onPageChange: "onPageChange", closeFile: "closeFile" }, viewQueries: [{ propertyName: "viewWordBar", first: true, predicate: ["viewWordBar"], descendants: true, static: true }, { propertyName: "loadingSpin", first: true, predicate: ["loadingSpin"], descendants: true, static: true }, { propertyName: "iframeDocx", first: true, predicate: ["iframeDocx"], descendants: true, static: true }, { propertyName: "iframePDF", first: true, predicate: ["iframePDF"], descendants: true, static: true }], ngImport: i0, template: "<div #viewWordBar class=\"toolbar\">\r\n\t<div id=\"toolbarContainer\">\r\n\t\t<div id=\"toolbarViewer\">\r\n\t\t\t<button id=\"download\" (click)=\"downloadFile()\" class=\"toolbarButton download\" title=\"Download\" tabindex=\"34\" data-l10n-id=\"download\">\r\n\t\t\t\t<img src=\"/assets/pdfjs/web/images/toolbarButton-download.png\" alt=\"Download\" />\r\n\t\t\t</button>\r\n\r\n\t\t\t<button *ngIf=\"closeButton\" id=\"closeFile\" (click)=\"closeWordFile()\" class=\"toolbarButton\" title=\"Close\" tabindex=\"36\" data-l10n-id=\"closeFile\">\r\n\t\t\t\t<img src=\"/assets/pdfjs/web/images/close-file.png\" alt=\"Close\" />\r\n\t\t\t</button>\r\n\t\t</div>\r\n\t</div>\r\n</div>\r\n<div #loadingSpin class=\"loadingSpin\">\r\n\t<div class=\"loader\"></div>\r\n</div>\r\n<iframe id=\"iframeDocx\" #iframeDocx title=\"ng2-pdfjs-viewer\" [hidden]=\"externalWindow || (!externalWindow && !pdfSrc)\" width=\"100%\" height=\"100%\"></iframe>\r\n\r\n<iframe id=\"iframePDF\" #iframePDF title=\"ng2-pdfjs-viewer\" [hidden]=\"externalWindow || (!externalWindow && !pdfSrc)\" width=\"100%\" height=\"100%\"></iframe>\r\n", styles: [".toolbar{position:relative;left:0;right:0;z-index:9999;cursor:default;display:none}#toolbarContainer{width:100%}#toolbarContainer{position:relative;height:32px;background-color:#474747;background-image:linear-gradient(#525252fc,#454545f2)}#toolbarViewer{height:32px;display:flex;flex-direction:row;justify-content:flex-end;align-items:center}button{background:none;width:53px;height:25px;min-width:16px;padding:2px 6px 0;border:1px solid transparent;border-radius:2px;color:#fffc;font-size:12px;line-height:14px;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;cursor:pointer;transition-property:background-color,border-color,box-shadow;transition-duration:.15s;transition-timing-function:ease}button:hover{background-color:#0000001f;background-image:linear-gradient(#ffffff0d,#fff0);background-clip:padding-box;border:1px solid hsla(0,0%,0%,.35);border-color:hsla(0,0%,0%,.32) hsla(0,0%,0%,.38) hsla(0,0%,0%,.42);box-shadow:0 1px #ffffff0d inset,0 0 1px #ffffff26 inset,0 1px #ffffff0d}.loadingSpin{display:none;position:absolute;top:0;left:0;width:100%;height:100%;background-color:#fff;z-index:1000}.loader{z-index:1001;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border:16px solid #f3f3f3;border-radius:50%;border-top:16px solid #3498db;width:120px;height:120px;-webkit-animation:spin 2s linear infinite;animation:spin 2s linear infinite}@-webkit-keyframes spin{0%{-webkit-transform:rotate(0deg)}to{-webkit-transform:rotate(360deg)}}@keyframes spin{0%{transform:rotate(0)}to{transform:rotate(360deg)}}\n"], dependencies: [{ kind: "directive", type: i1.NgIf, selector: "[ngIf]", inputs: ["ngIf", "ngIfThen", "ngIfElse"] }] });
 }
 i0.ɵɵngDeclareClassMetadata({ minVersion: "12.0.0", version: "17.3.12", ngImport: i0, type: PdfJsViewerComponent, decorators: [{
             type: Component,
-            args: [{ selector: "ng2-pdfjs-viewer", template: "<div #viewWordBar class=\"toolbar\">\r\n\t<div id=\"toolbarContainer\">\r\n\t\t<div id=\"toolbarViewer\">\r\n\t\t\t<button id=\"download\" (click)=\"downloadWordFile()\" class=\"toolbarButton download\" title=\"Download\" tabindex=\"34\" data-l10n-id=\"download\">\r\n\t\t\t\t<img src=\"/assets/pdfjs/web/images/toolbarButton-download.png\" alt=\"Download\" />\r\n\t\t\t</button>\r\n\r\n\t\t\t<button id=\"closeFile\" (click)=\"closeWordFile()\" class=\"toolbarButton\" title=\"Close\" tabindex=\"36\" data-l10n-id=\"closeFile\">\r\n\t\t\t\t<img src=\"/assets/pdfjs/web/images/close-file.png\" alt=\"Close\" />\r\n\t\t\t</button>\r\n\t\t</div>\r\n\t</div>\r\n</div>\r\n<div #loadingSpin class=\"loadingSpin\">\r\n\t<div class=\"loader\"></div>\r\n</div>\r\n<iframe id=\"iframeDocx\" #iframeDocx title=\"ng2-pdfjs-viewer\" [hidden]=\"externalWindow || (!externalWindow && !pdfSrc)\" width=\"100%\" height=\"100%\"></iframe>\r\n\r\n<iframe id=\"iframePDF\" #iframePDF title=\"ng2-pdfjs-viewer\" [hidden]=\"externalWindow || (!externalWindow && !pdfSrc)\" width=\"100%\" height=\"100%\"></iframe>\r\n", styles: [".toolbar{position:relative;left:0;right:0;z-index:9999;cursor:default;display:none}#toolbarContainer{width:100%}#toolbarContainer{position:relative;height:32px;background-color:#474747;background-image:linear-gradient(#525252fc,#454545f2)}#toolbarViewer{height:32px;display:flex;flex-direction:row;justify-content:flex-end;align-items:center}button{background:none;width:53px;height:25px;min-width:16px;padding:2px 6px 0;border:1px solid transparent;border-radius:2px;color:#fffc;font-size:12px;line-height:14px;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;cursor:pointer;transition-property:background-color,border-color,box-shadow;transition-duration:.15s;transition-timing-function:ease}button:hover{background-color:#0000001f;background-image:linear-gradient(#ffffff0d,#fff0);background-clip:padding-box;border:1px solid hsla(0,0%,0%,.35);border-color:hsla(0,0%,0%,.32) hsla(0,0%,0%,.38) hsla(0,0%,0%,.42);box-shadow:0 1px #ffffff0d inset,0 0 1px #ffffff26 inset,0 1px #ffffff0d}.loadingSpin{display:none;position:relative;top:0;left:0;width:100%;height:100%;background-color:#00000040;z-index:1000}.loader{z-index:1001;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border:16px solid #f3f3f3;border-radius:50%;border-top:16px solid #3498db;width:120px;height:120px;-webkit-animation:spin 2s linear infinite;animation:spin 2s linear infinite}@-webkit-keyframes spin{0%{-webkit-transform:rotate(0deg)}to{-webkit-transform:rotate(360deg)}}@keyframes spin{0%{transform:rotate(0)}to{transform:rotate(360deg)}}\n"] }]
+            args: [{ selector: "ng2-pdfjs-viewer", template: "<div #viewWordBar class=\"toolbar\">\r\n\t<div id=\"toolbarContainer\">\r\n\t\t<div id=\"toolbarViewer\">\r\n\t\t\t<button id=\"download\" (click)=\"downloadFile()\" class=\"toolbarButton download\" title=\"Download\" tabindex=\"34\" data-l10n-id=\"download\">\r\n\t\t\t\t<img src=\"/assets/pdfjs/web/images/toolbarButton-download.png\" alt=\"Download\" />\r\n\t\t\t</button>\r\n\r\n\t\t\t<button *ngIf=\"closeButton\" id=\"closeFile\" (click)=\"closeWordFile()\" class=\"toolbarButton\" title=\"Close\" tabindex=\"36\" data-l10n-id=\"closeFile\">\r\n\t\t\t\t<img src=\"/assets/pdfjs/web/images/close-file.png\" alt=\"Close\" />\r\n\t\t\t</button>\r\n\t\t</div>\r\n\t</div>\r\n</div>\r\n<div #loadingSpin class=\"loadingSpin\">\r\n\t<div class=\"loader\"></div>\r\n</div>\r\n<iframe id=\"iframeDocx\" #iframeDocx title=\"ng2-pdfjs-viewer\" [hidden]=\"externalWindow || (!externalWindow && !pdfSrc)\" width=\"100%\" height=\"100%\"></iframe>\r\n\r\n<iframe id=\"iframePDF\" #iframePDF title=\"ng2-pdfjs-viewer\" [hidden]=\"externalWindow || (!externalWindow && !pdfSrc)\" width=\"100%\" height=\"100%\"></iframe>\r\n", styles: [".toolbar{position:relative;left:0;right:0;z-index:9999;cursor:default;display:none}#toolbarContainer{width:100%}#toolbarContainer{position:relative;height:32px;background-color:#474747;background-image:linear-gradient(#525252fc,#454545f2)}#toolbarViewer{height:32px;display:flex;flex-direction:row;justify-content:flex-end;align-items:center}button{background:none;width:53px;height:25px;min-width:16px;padding:2px 6px 0;border:1px solid transparent;border-radius:2px;color:#fffc;font-size:12px;line-height:14px;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;cursor:pointer;transition-property:background-color,border-color,box-shadow;transition-duration:.15s;transition-timing-function:ease}button:hover{background-color:#0000001f;background-image:linear-gradient(#ffffff0d,#fff0);background-clip:padding-box;border:1px solid hsla(0,0%,0%,.35);border-color:hsla(0,0%,0%,.32) hsla(0,0%,0%,.38) hsla(0,0%,0%,.42);box-shadow:0 1px #ffffff0d inset,0 0 1px #ffffff26 inset,0 1px #ffffff0d}.loadingSpin{display:none;position:absolute;top:0;left:0;width:100%;height:100%;background-color:#fff;z-index:1000}.loader{z-index:1001;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border:16px solid #f3f3f3;border-radius:50%;border-top:16px solid #3498db;width:120px;height:120px;-webkit-animation:spin 2s linear infinite;animation:spin 2s linear infinite}@-webkit-keyframes spin{0%{-webkit-transform:rotate(0deg)}to{-webkit-transform:rotate(360deg)}}@keyframes spin{0%{transform:rotate(0)}to{transform:rotate(360deg)}}\n"] }]
         }], propDecorators: { viewWordBar: [{
                 type: ViewChild,
                 args: ["viewWordBar", { static: true }]

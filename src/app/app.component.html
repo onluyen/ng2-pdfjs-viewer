@@ -1,0 +1,7 @@
+@if (selectFile?.url) {
+	<div class="frame-container">
+		<ng2-pdfjs-viewer [pdfSrc]="selectFile?.url" [fullScreen]="false" locale="vi-VN" [print]="false" pagemode="none" [openFile]="false"></ng2-pdfjs-viewer>
+	</div>
+} @else {
+	File not found.
+}

@@ -152,7 +152,8 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 				this.iframeDocx.nativeElement.style.display = "block";
 				this.viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${_urlFile}`;
 				this.iframeDocx.nativeElement.src = this.viewerUrl;
-				this.iframeDocx.nativeElement.onload = () => {
+
+				this.iframeDocx.nativeElement.addEventListener("load", () => {
 					const content = this.iframeDocx.nativeElement?.contentWindow?.document?.body?.innerHTML;
 					console.log("content: " + content);
 					if (!content) {
@@ -160,22 +161,26 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 						this.iframeDocx.nativeElement.src = this.viewerUrl;
 					}
 
-					if (this.loadingSpin && this.loadingSpin.nativeElement) {
-						this.loadingSpin.nativeElement.style.display = "none";
-					}
-				};
-				setTimeout(() => {
-					if (this.loadingSpin && this.loadingSpin.nativeElement) {
-						this.loadingSpin.nativeElement.style.display = "none";
-					}
-				}, 3000);
+					setTimeout(() => {
+						if (this.loadingSpin && this.loadingSpin.nativeElement) {
+							this.loadingSpin.nativeElement.style.display = "none";
+						}
+					}, 1000);
+				});
+
+				// setTimeout(() => {
+				// 	if (this.loadingSpin && this.loadingSpin.nativeElement) {
+				// 		this.loadingSpin.nativeElement.style.display = "none";
+				// 	}
+				// }, 3000);
 			} else {
 				console.log("Định dạng không hợp lệ!");
 			}
 		}
 	}
 
-	downloadFile(url) {
+	downloadFile() {
+		let url = this.getUrlFile();
 		if (url) {
 			fetch(url).then((t) => {
 				return t.blob().then((b) => {
@@ -187,12 +192,6 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 				});
 			});
 		}
-	}
-
-	public downloadWordFile() {
-		console.log("download file!");
-		let url = this.getUrlFile();
-		this.downloadFile(url);
 	}
 
 	public closeWordFile() {

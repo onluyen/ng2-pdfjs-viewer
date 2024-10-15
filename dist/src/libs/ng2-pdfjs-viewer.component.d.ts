@@ -51,8 +51,7 @@ export declare class PdfJsViewerComponent implements OnInit, OnDestroy {
     get PDFViewerApplicationOptions(): any;
     get PDFViewerApplication(): any;
     receiveMessage(viewerEvent: any): void;
-    downloadFile(blobUrl: any, filename: any): void;
-    downloadWordFile(): void;
+    downloadFile(): void;
     closeWordFile(): void;
     isValidFile(str: any): boolean;
     getUrlFile(): string;

@@ -1031,6 +1031,11 @@ var PDFViewerApplication = {
               return _context7.abrupt("return", loadingTask.promise.then(function (pdfDocument) {
                 _this2.load(pdfDocument);
               }, function (exception) {
+
+                window.parent.postMessage({event: "loaderError"}, "*");
+
+                return;
+
                 if (loadingTask !== _this2.pdfLoadingTask) {
                   return undefined;
                 }
@@ -1075,11 +1080,28 @@ var PDFViewerApplication = {
   download: function download() {
     var _this3 = this;
 
+    function getFileExtension(filename) {
+      const ext = /^.+\.([^.]+)$/.exec(filename);
+      return ext == null ? '' : ext[1];
+    }
+
+    function isValidFile(str) {
+      switch (str.toLowerCase()) {
+          case 'doc':
+          case 'docx':
+          case 'pdf':
+          case 'csv':
+          case 'xls':
+          case 'xlsx':
+          return true;
+      }
+      return false;
+    }
+
     function downloadByUrl() {
       downloadManager.downloadUrl(url, filename);
     }
 
-    var url = this.baseUrl;
     var filename = this.contentDispositionFilename || (0, _ui_utils.getPDFFileNameFromURL)(this.url);
     var downloadManager = this.downloadManager;
 
@@ -1087,17 +1109,28 @@ var PDFViewerApplication = {
       _this3.error("PDF failed to download: ".concat(err));
     };
 
-    if (!this.pdfDocument || !this.downloadComplete) {
-      downloadByUrl();
-      return;
+    var url = this.baseUrl.split('.pdf')[0];
+    let ext = getFileExtension(url);
+    if (isValidFile(ext)) {
+        downloadByUrl();
+        return;
+    } else {
+        url = this.baseUrl;
+        downloadByUrl();
+        return;
     }
 
-    this.pdfDocument.getData().then(function (data) {
-      var blob = new Blob([data], {
-        type: 'application/pdf'
-      });
-      downloadManager.download(blob, url, filename);
-    })["catch"](downloadByUrl);
+    // if (!this.pdfDocument || !this.downloadComplete) {
+    //   downloadByUrl();
+    //   return;
+    // }
+
+    // this.pdfDocument.getData().then(function (data) {
+    //   var blob = new Blob([data], {
+    //     type: 'application/pdf'
+    //   });
+    //   downloadManager.download(blob, url, filename);
+    // })["catch"](downloadByUrl);
   },
   fallback: function fallback(featureId) {},
   error: function error(message, moreInfo) {
@@ -2197,12 +2230,7 @@ function webViewerZoomIn() {
 }
 
 function webViewerCloseFile() {
-
-  let viewerId = window.getUrlParameterByName('viewerId');
-
-  console.log(viewerId);
-
-  window.parent.postMessage({viewerId: viewerId, event: "closefile"}, "*");
+  window.parent.postMessage({event: "closefile"}, "*");
 }
 
 
@@ -4577,7 +4605,7 @@ window.applyParameterOverride = function(config) {
     config.toolbar.download.setAttribute('hidden', 'true');
     config.secondaryToolbar.downloadButton.setAttribute('hidden', 'true');
   }
-  if (!window.getUrlParameterByName('closeFile')) {
+  if (window.getUrlParameterByName('closeFile') !== "true") {
     config.toolbar.closeFile.setAttribute('hidden', 'true');
   }
   if (window.getUrlParameterByName('viewBookmark') === "false") {
@@ -7834,8 +7862,7 @@ function () {
     });
 
     this.eventBus.on('closefile', function() {
-      let viewerId = window.getUrlParameterByName('viewerId');
-      window.parent.postMessage({viewerId: viewerId, event: "closefile"}, "*");
+      window.parent.postMessage({event: "closefile"}, "*");
     });
   }
 

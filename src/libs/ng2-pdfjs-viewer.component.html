@@ -1,11 +1,11 @@
 <div #viewWordBar class="toolbar">
 	<div id="toolbarContainer">
 		<div id="toolbarViewer">
-			<button id="download" (click)="downloadWordFile()" class="toolbarButton download" title="Download" tabindex="34" data-l10n-id="download">
+			<button id="download" (click)="downloadFile()" class="toolbarButton download" title="Download" tabindex="34" data-l10n-id="download">
 				<img src="/assets/pdfjs/web/images/toolbarButton-download.png" alt="Download" />
 			</button>
 
-			<button *ngIf="closeEvent?.observers?.length" id="closeFile" (click)="closeWordFile()" class="toolbarButton" title="Close" tabindex="36" data-l10n-id="closeFile">
+			<button *ngIf="closeButton" id="closeFile" (click)="closeWordFile()" class="toolbarButton" title="Close" tabindex="36" data-l10n-id="closeFile">
 				<img src="/assets/pdfjs/web/images/close-file.png" alt="Close" />
 			</button>
 		</div>

@@ -3,13 +3,38 @@
   "version": "17.1.6",
   "$schema": "./node_modules/ng-packagr/package.schema.json",
   "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "watch": "ng build --watch --configuration development",
     "build": "ng-packagr -p ng-package.json"
   },
+  "private": true,
+  "dependencies": {},
   "peerDependencies": {
     "@angular/common": "^17.0.2",
+    "@angular/compiler": "^17.0.2",
     "@angular/core": "^17.0.2",
+    "@angular/forms": "^17.0.2",
+    "@angular/platform-browser": "^17.0.2",
+    "@angular/platform-browser-dynamic": "^17.0.2",
+    "@angular/router": "^17.0.2",
+    "@angular/animations": "^17.0.2",
+    "@angular-devkit/build-angular": "^17.0.2",
+    "@angular/cli": "^17.0.2",
+    "@angular/compiler-cli": "^17.0.2",
+    "@types/jasmine": "~5.1.0",
+    "jasmine-core": "~5.2.0",
+    "karma": "~6.4.0",
+    "karma-chrome-launcher": "~3.2.0",
+    "karma-coverage": "~2.2.0",
+    "karma-jasmine": "~5.1.0",
+    "karma-jasmine-html-reporter": "~2.1.0",
+    "typescript": "~5.4.5",
     "ng-packagr": "^17.0.0",
-    "prettier": "^3.3.0"
+    "prettier": "^3.3.0",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0",
+    "zone.js": "~0.14.10"
   },
   "repository": {
     "type": "git",
@@ -31,6 +56,5 @@
   "license": "Apache",
   "bugs": {
     "url": "https://github.com/onluyen/ng2-pdfjs-viewer/issues"
-  },
-  "dependencies": {}
+  }
 }
