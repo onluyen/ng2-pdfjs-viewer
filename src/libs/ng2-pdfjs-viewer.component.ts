@@ -1,15 +1,15 @@
-import { Component, Input, Output, ViewChild, EventEmitter, ElementRef, OnDestroy, OnInit } from "@angular/core";
+import { Component, Input, Output, ViewChild, EventEmitter, ElementRef, OnDestroy, OnInit } from '@angular/core';
 
 @Component({
-	selector: "ng2-pdfjs-viewer",
-	templateUrl: "./ng2-pdfjs-viewer.component.html",
-	styleUrls: ["./ng2-pdfjs-viewer.component.scss"],
+	selector: 'ng2-pdfjs-viewer',
+	templateUrl: './ng2-pdfjs-viewer.component.html',
+	styleUrls: ['./ng2-pdfjs-viewer.component.scss'],
 })
 export class PdfJsViewerComponent implements OnInit, OnDestroy {
-	@ViewChild("viewWordBar", { static: true }) viewWordBar: ElementRef;
-	@ViewChild("loadingSpin", { static: true }) loadingSpin: ElementRef;
-	@ViewChild("iframeDocx", { static: true }) iframeDocx: ElementRef;
-	@ViewChild("iframePDF", { static: true }) iframePDF: ElementRef;
+	@ViewChild('viewWordBar', { static: true }) viewWordBar: ElementRef;
+	@ViewChild('loadingSpin', { static: true }) loadingSpin: ElementRef;
+	@ViewChild('iframeDocx', { static: true }) iframeDocx: ElementRef;
+	@ViewChild('iframePDF', { static: true }) iframePDF: ElementRef;
 	@Input() public viewerId: string;
 	@Output() onBeforePrint: EventEmitter<any> = new EventEmitter();
 	@Output() onAfterPrint: EventEmitter<any> = new EventEmitter();
@@ -71,13 +71,13 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 		if (this.PDFViewerApplication) {
 			return this.PDFViewerApplication.page;
 		} else {
-			if (this.diagnosticLogs) console.warn("Document is not loaded yet!!!. Try to retrieve page# after full load.");
+			if (this.diagnosticLogs) console.warn('Document is not loaded yet!!!. Try to retrieve page# after full load.');
 		}
 	}
 
 	@Input()
 	public set pdfSrc(_src: string | Blob | Uint8Array) {
-		if (typeof _src === "string") {
+		if (typeof _src === 'string') {
 			this._src = encodeURIComponent(_src);
 		} else {
 			this._src = _src;
@@ -122,59 +122,54 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 			let event = viewerEvent.data.event;
 			let param = viewerEvent.data.param;
 			if (this.viewerId == viewerId) {
-				if (this.onBeforePrint && event == "beforePrint") {
+				if (this.onBeforePrint && event == 'beforePrint') {
 					this.onBeforePrint.emit();
-				} else if (this.onAfterPrint && event == "afterPrint") {
+				} else if (this.onAfterPrint && event == 'afterPrint') {
 					this.onAfterPrint.emit();
-				} else if (this.onDocumentLoad && event == "pagesLoaded") {
+				} else if (this.onDocumentLoad && event == 'pagesLoaded') {
 					this.onDocumentLoad.emit(param);
-				} else if (this.onPageChange && event == "pageChange") {
+				} else if (this.onPageChange && event == 'pageChange') {
 					this.onPageChange.emit(param);
 				}
 			}
 		}
-		if (viewerEvent.data && viewerEvent.data.event === "closefile") {
+		if (viewerEvent.data && viewerEvent.data.event === 'closefile') {
 			this.closeFile.emit(true);
-		} else if (viewerEvent.data && viewerEvent.data.event === "loaderError") {
-			this.loadingSpin.nativeElement.style.display = "block";
-			this.iframePDF.nativeElement.style.display = "none";
+		} else if (viewerEvent.data && viewerEvent.data.event === 'loaderError') {
+			this.loadingSpin.nativeElement.style.display = 'block';
+			this.iframePDF.nativeElement.style.display = 'none';
 
 			let url = this.getUrlFile();
 			let ext = this.getFileExtension(url);
 			if (this.isValidFile(ext)) {
 				const _urlFile = decodeURIComponent(url);
-				const _checkExtWithoutPdf = this.isValidFile(this.getFileExtension(_urlFile.split(".pdf")[0]));
+				const _checkExtWithoutPdf = this.isValidFile(this.getFileExtension(_urlFile.split('.pdf')[0]));
 				if (_checkExtWithoutPdf) {
-					_urlFile.replace(".pdf", "");
+					_urlFile.replace('.pdf', '');
 				}
 
-				this.viewWordBar.nativeElement.style.display = "block";
-				this.iframeDocx.nativeElement.style.display = "block";
+				this.viewWordBar.nativeElement.style.display = 'block';
+				this.iframeDocx.nativeElement.style.display = 'block';
 				this.viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${_urlFile}`;
 				this.iframeDocx.nativeElement.src = this.viewerUrl;
 
-				this.iframeDocx.nativeElement.addEventListener("load", () => {
-					const content = this.iframeDocx.nativeElement?.contentWindow?.document?.body?.innerHTML;
-					console.log("content: " + content);
-					if (!content) {
-						this.viewerUrl = `https://docs.google.com/gview?url=${_urlFile}&embedded=true`;
-						this.iframeDocx.nativeElement.src = this.viewerUrl;
-					}
-
+				this.iframeDocx.nativeElement.addEventListener('load', () => {
+					console.log('load iframe');
 					setTimeout(() => {
 						if (this.loadingSpin && this.loadingSpin.nativeElement) {
-							this.loadingSpin.nativeElement.style.display = "none";
+							this.loadingSpin.nativeElement.style.display = 'none';
 						}
 					}, 1000);
 				});
 
-				// setTimeout(() => {
-				// 	if (this.loadingSpin && this.loadingSpin.nativeElement) {
-				// 		this.loadingSpin.nativeElement.style.display = "none";
-				// 	}
-				// }, 3000);
+				this.iframeDocx.nativeElement.addEventListener('error', () => {
+					console.error('Error loading iframe');
+					// Hiển thị thông báo lỗi cho người dùng
+					this.viewerUrl = `https://docs.google.com/gview?url=${_urlFile}&embedded=true`;
+					this.iframeDocx.nativeElement.src = this.viewerUrl;
+				});
 			} else {
-				console.log("Định dạng không hợp lệ!");
+				console.log('Định dạng không hợp lệ!');
 			}
 		}
 	}
@@ -184,9 +179,9 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 		if (url) {
 			fetch(url).then((t) => {
 				return t.blob().then((b) => {
-					const a = document.createElement("a");
+					const a = document.createElement('a');
 					a.href = URL.createObjectURL(b);
-					a.setAttribute("download", this.downloadFileName ? `${this.downloadFileName}.${this.getFileExtension(url)}` : `download_file.${this.getFileExtension(url)}`);
+					a.setAttribute('download', this.downloadFileName ? `${this.downloadFileName}.${this.getFileExtension(url)}` : `download_file.${this.getFileExtension(url)}`);
 					a.click();
 					a.remove();
 				});
@@ -195,19 +190,19 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 	}
 
 	public closeWordFile() {
-		console.log("close File!");
+		console.log('close File!');
 		this.closeFile.emit(true);
 	}
 
 	isValidFile(str) {
 		switch (str.toLowerCase()) {
-			case "pdf":
-			case "doc":
-			case "docx":
-			case "xls":
-			case "xlsx":
-			case "pptx":
-			case "ppt":
+			case 'pdf':
+			case 'doc':
+			case 'docx':
+			case 'xls':
+			case 'xlsx':
+			case 'pptx':
+			case 'ppt':
 				return true;
 		}
 		return false;
@@ -217,7 +212,7 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 		if (this._src instanceof Blob) {
 			return encodeURIComponent(URL.createObjectURL(this._src));
 		} else if (this._src instanceof Uint8Array) {
-			let blob = new Blob([this._src], { type: "application/pdf" });
+			let blob = new Blob([this._src], { type: 'application/pdf' });
 			return encodeURIComponent(URL.createObjectURL(blob));
 		} else {
 			return this._src;
@@ -225,23 +220,23 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 	}
 
 	getFileExtension(filename) {
-		let ext = decodeURIComponent(filename).split("?")[0].split(".").pop();
+		let ext = decodeURIComponent(filename).split('?')[0].split('.').pop();
 
 		if (!ext) {
-			ext = decodeURIComponent(filename).split("/").pop().split(".").pop();
+			ext = decodeURIComponent(filename).split('/').pop().split('.').pop();
 		}
 
 		// return decodeURIComponent(filename).split("/").pop().split(".").pop();
 		// return decodeURIComponent(filename).split("?")[0].split(".").pop();
 		// const ext = /^.+\.([^.]+)$/.exec(filename);
 		// return ext == null ? "" : ext[1];
-		console.log("ext: " + ext);
+		console.log('ext: ' + ext);
 
 		return ext;
 	}
 
 	ngOnInit(): void {
-		window.addEventListener("message", this.receiveMessage.bind(this), false);
+		window.addEventListener('message', this.receiveMessage.bind(this), false);
 		if (!this.externalWindow) {
 			// Load pdf for embedded views
 			this.loadPdf();
@@ -259,17 +254,17 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 		if (!this._src) {
 			return;
 		}
-		this.viewerUrl = "";
-		this.viewWordBar.nativeElement.style.display = "none";
+		this.viewerUrl = '';
+		this.viewWordBar.nativeElement.style.display = 'none';
 		// console.log(`Tab is - ${this.viewerTab}`);
 		// if (this.viewerTab) {
 		//   console.log(`Status of window - ${this.viewerTab.closed}`);
 		// }
 
-		this.iframeDocx.nativeElement.style.display = "none";
+		this.iframeDocx.nativeElement.style.display = 'none';
 
-		if (this.externalWindow && (typeof this.viewerTab === "undefined" || this.viewerTab.closed)) {
-			this.viewerTab = window.open("", "_blank", this.externalWindowOptions || "");
+		if (this.externalWindow && (typeof this.viewerTab === 'undefined' || this.viewerTab.closed)) {
+			this.viewerTab = window.open('', '_blank', this.externalWindowOptions || '');
 			if (this.viewerTab == null) {
 				if (this.diagnosticLogs) console.error("ng2-pdfjs-viewer: For 'externalWindow = true'. i.e opening in new tab to work, pop-ups should be enabled.");
 				return;
@@ -313,22 +308,22 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 
 		this.viewerUrl += `?file=${fileUrl}`;
 
-		if (typeof this.viewerId !== "undefined") {
+		if (typeof this.viewerId !== 'undefined') {
 			this.viewerUrl += `&viewerId=${this.viewerId}`;
 		}
-		if (typeof this.onBeforePrint !== "undefined") {
+		if (typeof this.onBeforePrint !== 'undefined') {
 			this.viewerUrl += `&beforePrint=true`;
 		}
-		if (typeof this.onAfterPrint !== "undefined") {
+		if (typeof this.onAfterPrint !== 'undefined') {
 			this.viewerUrl += `&afterPrint=true`;
 		}
-		if (typeof this.onDocumentLoad !== "undefined") {
+		if (typeof this.onDocumentLoad !== 'undefined') {
 			this.viewerUrl += `&pagesLoaded=true`;
 		}
-		if (typeof this.onPageChange !== "undefined") {
+		if (typeof this.onPageChange !== 'undefined') {
 			this.viewerUrl += `&pageChange=true`;
 		}
-		if (typeof this.closeButton !== "undefined") {
+		if (typeof this.closeButton !== 'undefined') {
 			this.viewerUrl += `&closeFile=${this.closeButton}`;
 		}
 
@@ -338,31 +333,31 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 			// }
 			this.viewerUrl += `&fileName=${this.downloadFileName}.pdf`;
 		}
-		if (typeof this.openFile !== "undefined") {
+		if (typeof this.openFile !== 'undefined') {
 			this.viewerUrl += `&openFile=${this.openFile}`;
 		}
-		if (typeof this.download !== "undefined") {
+		if (typeof this.download !== 'undefined') {
 			this.viewerUrl += `&download=${this.download}`;
 		}
 		if (this.startDownload) {
 			this.viewerUrl += `&startDownload=${this.startDownload}`;
 		}
-		if (typeof this.viewBookmark !== "undefined") {
+		if (typeof this.viewBookmark !== 'undefined') {
 			this.viewerUrl += `&viewBookmark=${this.viewBookmark}`;
 		}
-		if (typeof this.print !== "undefined") {
+		if (typeof this.print !== 'undefined') {
 			this.viewerUrl += `&print=${this.print}`;
 		}
 		if (this.startPrint) {
 			this.viewerUrl += `&startPrint=${this.startPrint}`;
 		}
-		if (typeof this.fullScreen !== "undefined") {
+		if (typeof this.fullScreen !== 'undefined') {
 			this.viewerUrl += `&fullScreen=${this.fullScreen}`;
 		}
 		// if (this.showFullScreen) {
 		//   this.viewerUrl += `&showFullScreen=${this.showFullScreen}`;
 		// }
-		if (typeof this.find !== "undefined") {
+		if (typeof this.find !== 'undefined') {
 			this.viewerUrl += `&find=${this.find}`;
 		}
 		if (this.lastPage) {
@@ -390,7 +385,7 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 			this.viewerUrl += `&useOnlyCssZoom=${this.useOnlyCssZoom}`;
 		}
 
-		if (this._page || this.zoom || this.nameddest || this.pagemode) this.viewerUrl += "#";
+		if (this._page || this.zoom || this.nameddest || this.pagemode) this.viewerUrl += '#';
 		if (this._page) {
 			this.viewerUrl += `&page=${this._page}`;
 		}
@@ -422,7 +417,6 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 
 		console.log(`
       pdfSrc = ${this.pdfSrc}
-      fileUrl = ${fileUrl}
       externalWindow = ${this.externalWindow}
       downloadFileName = ${this.downloadFileName}
     `);

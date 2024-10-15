@@ -263,3 +263,6 @@ auto_deploy.ps1
 
 package-lock.json
 *.tgz
+
+dist
+bun.lockb

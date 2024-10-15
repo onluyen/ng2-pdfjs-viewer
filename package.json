@@ -1,14 +1,14 @@
 {
   "name": "onluyen-pdf-viewer",
-  "version": "17.1.6",
+  "version": "17.1.7",
   "$schema": "./node_modules/ng-packagr/package.schema.json",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "watch": "ng build --watch --configuration development",
-    "build": "ng-packagr -p ng-package.json"
+    "build": "ng-packagr -p ng-package.json",
+    "serve-public": "node ./node_modules/@angular/cli/bin/ng serve --ssl true --port 443 --host 0.0.0.0"
   },
-  "private": true,
   "dependencies": {},
   "peerDependencies": {
     "@angular/common": "^17.0.2",

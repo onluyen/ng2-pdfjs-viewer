@@ -1,3 +1,0 @@
-export * from './src/libs/ng2-pdfjs-viewer.component';
-export * from './src/libs/ng2-pdfjs-viewer.module';
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiaW5kZXguanMiLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyIuLi8uLi9pbmRleC50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFBQSxjQUFjLHVDQUF1QyxDQUFDO0FBQ3RELGNBQWMsb0NBQW9DLENBQUMiLCJzb3VyY2VzQ29udGVudCI6WyJleHBvcnQgKiBmcm9tICcuL3NyYy9saWJzL25nMi1wZGZqcy12aWV3ZXIuY29tcG9uZW50JztcclxuZXhwb3J0ICogZnJvbSAnLi9zcmMvbGlicy9uZzItcGRmanMtdmlld2VyLm1vZHVsZSc7Il19
