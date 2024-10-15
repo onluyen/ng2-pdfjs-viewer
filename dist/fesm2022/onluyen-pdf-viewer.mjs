@@ -86,9 +86,7 @@ class PdfJsViewerComponent {
         }
         else {
             if (this.iframePDF.nativeElement.contentWindow) {
-                pdfViewerOptions =
-                    this.iframePDF.nativeElement.contentWindow
-                        .PDFViewerApplicationOptions;
+                pdfViewerOptions = this.iframePDF.nativeElement.contentWindow.PDFViewerApplicationOptions;
             }
         }
         return pdfViewerOptions;
@@ -102,16 +100,13 @@ class PdfJsViewerComponent {
         }
         else {
             if (this.iframePDF.nativeElement.contentWindow) {
-                pdfViewer =
-                    this.iframePDF.nativeElement.contentWindow.PDFViewerApplication;
+                pdfViewer = this.iframePDF.nativeElement.contentWindow.PDFViewerApplication;
             }
         }
         return pdfViewer;
     }
     receiveMessage(viewerEvent) {
-        if (viewerEvent.data &&
-            viewerEvent.data.viewerId &&
-            viewerEvent.data.event) {
+        if (viewerEvent.data && viewerEvent.data.viewerId && viewerEvent.data.event) {
             let viewerId = viewerEvent.data.viewerId;
             let event = viewerEvent.data.event;
             let param = viewerEvent.data.param;
@@ -144,36 +139,31 @@ class PdfJsViewerComponent {
                 if (_checkExtWithoutPdf) {
                     _urlFile.replace(".pdf", "");
                 }
+                // Hiển thị thanh công cụ và iframe
                 this.viewWordBar.nativeElement.style.display = "block";
-                this.viewerUrl = `https://docs.google.com/gview?url=${_urlFile}&embedded=true`;
                 this.iframeDocx.nativeElement.style.display = "block";
-                let countTimeload = 0;
-                let checkContent = false;
-                setTimeout(() => {
-                    do {
-                        this.iframeDocx.nativeElement.src = this.viewerUrl;
-                        setTimeout(() => {
-                            let content = this.iframeDocx.nativeElement?.contentWindow?.document?.getElementsByTagName("body")[0]?.innerHTML;
-                            if (content !== "") {
-                                checkContent = true;
-                                return;
-                            }
-                            else {
-                                countTimeload++;
-                            }
-                        }, 3000 * countTimeload);
-                    } while (countTimeload === 4 || checkContent);
-                    if (!checkContent) {
-                        this.viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${_urlFile}`;
+                // Đặt URL ban đầu cho iframe
+                this.viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${_urlFile}`;
+                this.iframeDocx.nativeElement.src = this.viewerUrl;
+                // Đảm bảo rằng loading spinner sẽ tắt khi iframe tải xong
+                this.iframeDocx.nativeElement.onload = () => {
+                    const content = this.iframeDocx.nativeElement?.contentWindow?.document?.body?.innerHTML;
+                    console.log("content: " + content);
+                    if (!content) {
+                        this.viewerUrl = `https://docs.google.com/gview?url=${_urlFile}&embedded=true`;
                         this.iframeDocx.nativeElement.src = this.viewerUrl;
                     }
-                    else {
-                        alert("Hiện tại chưa xem được file!");
+                    // Đảm bảo spinner tắt khi tải xong bất kỳ URL nào
+                    if (this.loadingSpin && this.loadingSpin.nativeElement) {
+                        this.loadingSpin.nativeElement.style.display = "none";
                     }
-                });
+                };
+                // Dự phòng: Tắt spinner sau khoảng thời gian tối đa (ví dụ: 10 giây)
                 setTimeout(() => {
-                    this.loadingSpin.nativeElement.style.display = "none";
-                }, 3200 * countTimeload);
+                    if (this.loadingSpin && this.loadingSpin.nativeElement) {
+                        this.loadingSpin.nativeElement.style.display = "none";
+                    }
+                }, 10000);
             }
             else {
                 console.log("Định dạng không hợp lệ!");
@@ -229,10 +219,16 @@ class PdfJsViewerComponent {
         }
     }
     getFileExtension(filename) {
+        let ext = decodeURIComponent(filename).split("?")[0].split(".").pop();
+        if (!ext) {
+            ext = decodeURIComponent(filename).split("/").pop().split(".").pop();
+        }
         // return decodeURIComponent(filename).split("/").pop().split(".").pop();
-        return decodeURIComponent(filename).split("?")[0].split(".").pop();
+        // return decodeURIComponent(filename).split("?")[0].split(".").pop();
         // const ext = /^.+\.([^.]+)$/.exec(filename);
         // return ext == null ? "" : ext[1];
+        console.log("ext: " + ext);
+        return ext;
     }
     ngOnInit() {
         window.addEventListener("message", this.receiveMessage.bind(this), false);
@@ -257,8 +253,7 @@ class PdfJsViewerComponent {
         //   console.log(`Status of window - ${this.viewerTab.closed}`);
         // }
         this.iframeDocx.nativeElement.style.display = "none";
-        if (this.externalWindow &&
-            (typeof this.viewerTab === "undefined" || this.viewerTab.closed)) {
+        if (this.externalWindow && (typeof this.viewerTab === "undefined" || this.viewerTab.closed)) {
             this.viewerTab = window.open("", "_blank", this.externalWindowOptions || "");
             if (this.viewerTab == null) {
                 if (this.diagnosticLogs)
@@ -320,10 +315,10 @@ class PdfJsViewerComponent {
             this.viewerUrl += `&closeFile=${this.closeButton}`;
         }
         if (this.downloadFileName) {
-            if (!this.downloadFileName.endsWith(".pdf")) {
-                this.downloadFileName += ".pdf";
-            }
-            this.viewerUrl += `&fileName=${this.downloadFileName}`;
+            // if (!this.downloadFileName.endsWith(".pdf")) {
+            // 	this.downloadFileName += ".pdf";
+            // }
+            this.viewerUrl += `&fileName=${this.downloadFileName}.pdf`;
         }
         if (typeof this.openFile !== "undefined") {
             this.viewerUrl += `&openFile=${this.openFile}`;
@@ -438,342 +433,11 @@ class PdfJsViewerComponent {
         this.relaseUrl?.();
     }
     static ɵfac = i0.ɵɵngDeclareFactory({ minVersion: "12.0.0", version: "17.3.12", ngImport: i0, type: PdfJsViewerComponent, deps: [], target: i0.ɵɵFactoryTarget.Component });
-    static ɵcmp = i0.ɵɵngDeclareComponent({ minVersion: "14.0.0", version: "17.3.12", type: PdfJsViewerComponent, selector: "ng2-pdfjs-viewer", inputs: { viewerId: "viewerId", viewerFolder: "viewerFolder", externalWindow: "externalWindow", showSpinner: "showSpinner", downloadFileName: "downloadFileName", openFile: "openFile", download: "download", startDownload: "startDownload", viewBookmark: "viewBookmark", print: "print", startPrint: "startPrint", fullScreen: "fullScreen", find: "find", zoom: "zoom", nameddest: "nameddest", pagemode: "pagemode", lastPage: "lastPage", rotatecw: "rotatecw", rotateccw: "rotateccw", cursor: "cursor", scroll: "scroll", spread: "spread", locale: "locale", useOnlyCssZoom: "useOnlyCssZoom", errorOverride: "errorOverride", errorAppend: "errorAppend", errorMessage: "errorMessage", diagnosticLogs: "diagnosticLogs", externalWindowOptions: "externalWindowOptions", closeButton: "closeButton", page: "page", pdfSrc: "pdfSrc" }, outputs: { onBeforePrint: "onBeforePrint", onAfterPrint: "onAfterPrint", onDocumentLoad: "onDocumentLoad", onPageChange: "onPageChange", closeFile: "closeFile" }, viewQueries: [{ propertyName: "viewWordBar", first: true, predicate: ["viewWordBar"], descendants: true, static: true }, { propertyName: "loadingSpin", first: true, predicate: ["loadingSpin"], descendants: true, static: true }, { propertyName: "iframeDocx", first: true, predicate: ["iframeDocx"], descendants: true, static: true }, { propertyName: "iframePDF", first: true, predicate: ["iframePDF"], descendants: true, static: true }], ngImport: i0, template: `
-    <style>
-      .toolbar {
-        position: relative;
-        left: 0;
-        right: 0;
-        z-index: 9999;
-        cursor: default;
-        display: none;
-      }
-
-      #toolbarContainer {
-        width: 100%;
-      }
-
-      #toolbarContainer {
-        position: relative;
-        height: 32px;
-        background-color: #474747;
-        background-image: linear-gradient(
-          hsla(0, 0%, 32%, 0.99),
-          hsla(0, 0%, 27%, 0.95)
-        );
-      }
-
-      #toolbarViewer {
-        height: 32px;
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-end;
-        align-items: center;
-      }
-
-      button {
-        background: none;
-        width: 53px;
-        height: 25px;
-        min-width: 16px;
-        padding: 2px 6px 0;
-        border: 1px solid transparent;
-        border-radius: 2px;
-        color: hsla(0, 0%, 100%, 0.8);
-        font-size: 12px;
-        line-height: 14px;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-        /* Opera does not support user-select, use <... unselectable="on"> instead */
-        cursor: pointer;
-        transition-property: background-color, border-color, box-shadow;
-        transition-duration: 150ms;
-        transition-timing-function: ease;
-      }
-
-      button:hover {
-        background-color: hsla(0, 0%, 0%, 0.12);
-        background-image: linear-gradient(
-          hsla(0, 0%, 100%, 0.05),
-          hsla(0, 0%, 100%, 0)
-        );
-        background-clip: padding-box;
-        border: 1px solid hsla(0, 0%, 0%, 0.35);
-        border-color: hsla(0, 0%, 0%, 0.32) hsla(0, 0%, 0%, 0.38)
-          hsla(0, 0%, 0%, 0.42);
-        box-shadow: 0 1px 0 hsla(0, 0%, 100%, 0.05) inset,
-          0 0 1px hsla(0, 0%, 100%, 0.15) inset, 0 1px 0 hsla(0, 0%, 100%, 0.05);
-      }
-
-      .loadingSpin {
-        display: none;
-        position: relative;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.25);
-        z-index: 1000;
-      }
-
-      .loader {
-        z-index: 1001;
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        border: 16px solid #f3f3f3;
-        border-radius: 50%;
-        border-top: 16px solid #3498db;
-        width: 120px;
-        height: 120px;
-        -webkit-animation: spin 2s linear infinite; /* Safari */
-        animation: spin 2s linear infinite;
-      }
-
-      /* Safari */
-      @-webkit-keyframes spin {
-        0% {
-          -webkit-transform: rotate(0deg);
-        }
-        100% {
-          -webkit-transform: rotate(360deg);
-        }
-      }
-
-      @keyframes spin {
-        0% {
-          transform: rotate(0deg);
-        }
-        100% {
-          transform: rotate(360deg);
-        }
-      }
-    </style>
-    <div #viewWordBar class="toolbar">
-      <div id="toolbarContainer">
-        <div id="toolbarViewer">
-          <button
-            id="download"
-            (click)="downloadWordFile()"
-            class="toolbarButton download"
-            title="Download"
-            tabindex="34"
-            data-l10n-id="download"
-          >
-            <img
-              src="/assets/pdfjs/web/images/toolbarButton-download.png"
-              alt="Download"
-            />
-          </button>
-
-          <button
-            id="closeFile"
-            (click)="closeWordFile()"
-            class="toolbarButton"
-            title="Close"
-            tabindex="36"
-            data-l10n-id="closeFile"
-          >
-            <img src="/assets/pdfjs/web/images/close-file.png" alt="Close" />
-          </button>
-        </div>
-      </div>
-    </div>
-    <div #loadingSpin class="loadingSpin">
-      <div class="loader"></div>
-    </div>
-    <iframe
-      id="iframeDocx"
-      #iframeDocx
-      title="ng2-pdfjs-viewer"
-      [hidden]="externalWindow || (!externalWindow && !pdfSrc)"
-      width="100%"
-      height="100%"
-    ></iframe>
-
-    <iframe
-      id="iframePDF"
-      #iframePDF
-      title="ng2-pdfjs-viewer"
-      [hidden]="externalWindow || (!externalWindow && !pdfSrc)"
-      width="100%"
-      height="100%"
-    ></iframe>
-  `, isInline: true, styles: ["\n      .toolbar {\n        position: relative;\n        left: 0;\n        right: 0;\n        z-index: 9999;\n        cursor: default;\n        display: none;\n      }\n\n      #toolbarContainer {\n        width: 100%;\n      }\n\n      #toolbarContainer {\n        position: relative;\n        height: 32px;\n        background-color: #474747;\n        background-image: linear-gradient(\n          hsla(0, 0%, 32%, 0.99),\n          hsla(0, 0%, 27%, 0.95)\n        );\n      }\n\n      #toolbarViewer {\n        height: 32px;\n        display: flex;\n        flex-direction: row;\n        justify-content: flex-end;\n        align-items: center;\n      }\n\n      button {\n        background: none;\n        width: 53px;\n        height: 25px;\n        min-width: 16px;\n        padding: 2px 6px 0;\n        border: 1px solid transparent;\n        border-radius: 2px;\n        color: hsla(0, 0%, 100%, 0.8);\n        font-size: 12px;\n        line-height: 14px;\n        -webkit-user-select: none;\n        -moz-user-select: none;\n        -ms-user-select: none;\n        user-select: none;\n        /* Opera does not support user-select, use <... unselectable=\"on\"> instead */\n        cursor: pointer;\n        transition-property: background-color, border-color, box-shadow;\n        transition-duration: 150ms;\n        transition-timing-function: ease;\n      }\n\n      button:hover {\n        background-color: hsla(0, 0%, 0%, 0.12);\n        background-image: linear-gradient(\n          hsla(0, 0%, 100%, 0.05),\n          hsla(0, 0%, 100%, 0)\n        );\n        background-clip: padding-box;\n        border: 1px solid hsla(0, 0%, 0%, 0.35);\n        border-color: hsla(0, 0%, 0%, 0.32) hsla(0, 0%, 0%, 0.38)\n          hsla(0, 0%, 0%, 0.42);\n        box-shadow: 0 1px 0 hsla(0, 0%, 100%, 0.05) inset,\n          0 0 1px hsla(0, 0%, 100%, 0.15) inset, 0 1px 0 hsla(0, 0%, 100%, 0.05);\n      }\n\n      .loadingSpin {\n        display: none;\n        position: relative;\n        top: 0;\n        left: 0;\n        width: 100%;\n        height: 100%;\n        background-color: rgba(0, 0, 0, 0.25);\n        z-index: 1000;\n      }\n\n      .loader {\n        z-index: 1001;\n        position: absolute;\n        left: 50%;\n        top: 50%;\n        transform: translate(-50%, -50%);\n        border: 16px solid #f3f3f3;\n        border-radius: 50%;\n        border-top: 16px solid #3498db;\n        width: 120px;\n        height: 120px;\n        -webkit-animation: spin 2s linear infinite; /* Safari */\n        animation: spin 2s linear infinite;\n      }\n\n      /* Safari */\n      @-webkit-keyframes spin {\n        0% {\n          -webkit-transform: rotate(0deg);\n        }\n        100% {\n          -webkit-transform: rotate(360deg);\n        }\n      }\n\n      @keyframes spin {\n        0% {\n          transform: rotate(0deg);\n        }\n        100% {\n          transform: rotate(360deg);\n        }\n      }\n    "] });
+    static ɵcmp = i0.ɵɵngDeclareComponent({ minVersion: "14.0.0", version: "17.3.12", type: PdfJsViewerComponent, selector: "ng2-pdfjs-viewer", inputs: { viewerId: "viewerId", viewerFolder: "viewerFolder", externalWindow: "externalWindow", showSpinner: "showSpinner", downloadFileName: "downloadFileName", openFile: "openFile", download: "download", startDownload: "startDownload", viewBookmark: "viewBookmark", print: "print", startPrint: "startPrint", fullScreen: "fullScreen", find: "find", zoom: "zoom", nameddest: "nameddest", pagemode: "pagemode", lastPage: "lastPage", rotatecw: "rotatecw", rotateccw: "rotateccw", cursor: "cursor", scroll: "scroll", spread: "spread", locale: "locale", useOnlyCssZoom: "useOnlyCssZoom", errorOverride: "errorOverride", errorAppend: "errorAppend", errorMessage: "errorMessage", diagnosticLogs: "diagnosticLogs", externalWindowOptions: "externalWindowOptions", closeButton: "closeButton", page: "page", pdfSrc: "pdfSrc" }, outputs: { onBeforePrint: "onBeforePrint", onAfterPrint: "onAfterPrint", onDocumentLoad: "onDocumentLoad", onPageChange: "onPageChange", closeFile: "closeFile" }, viewQueries: [{ propertyName: "viewWordBar", first: true, predicate: ["viewWordBar"], descendants: true, static: true }, { propertyName: "loadingSpin", first: true, predicate: ["loadingSpin"], descendants: true, static: true }, { propertyName: "iframeDocx", first: true, predicate: ["iframeDocx"], descendants: true, static: true }, { propertyName: "iframePDF", first: true, predicate: ["iframePDF"], descendants: true, static: true }], ngImport: i0, template: "<div #viewWordBar class=\"toolbar\">\r\n\t<div id=\"toolbarContainer\">\r\n\t\t<div id=\"toolbarViewer\">\r\n\t\t\t<button id=\"download\" (click)=\"downloadWordFile()\" class=\"toolbarButton download\" title=\"Download\" tabindex=\"34\" data-l10n-id=\"download\">\r\n\t\t\t\t<img src=\"/assets/pdfjs/web/images/toolbarButton-download.png\" alt=\"Download\" />\r\n\t\t\t</button>\r\n\r\n\t\t\t<button id=\"closeFile\" (click)=\"closeWordFile()\" class=\"toolbarButton\" title=\"Close\" tabindex=\"36\" data-l10n-id=\"closeFile\">\r\n\t\t\t\t<img src=\"/assets/pdfjs/web/images/close-file.png\" alt=\"Close\" />\r\n\t\t\t</button>\r\n\t\t</div>\r\n\t</div>\r\n</div>\r\n<div #loadingSpin class=\"loadingSpin\">\r\n\t<div class=\"loader\"></div>\r\n</div>\r\n<iframe id=\"iframeDocx\" #iframeDocx title=\"ng2-pdfjs-viewer\" [hidden]=\"externalWindow || (!externalWindow && !pdfSrc)\" width=\"100%\" height=\"100%\"></iframe>\r\n\r\n<iframe id=\"iframePDF\" #iframePDF title=\"ng2-pdfjs-viewer\" [hidden]=\"externalWindow || (!externalWindow && !pdfSrc)\" width=\"100%\" height=\"100%\"></iframe>\r\n", styles: [".toolbar{position:relative;left:0;right:0;z-index:9999;cursor:default;display:none}#toolbarContainer{width:100%}#toolbarContainer{position:relative;height:32px;background-color:#474747;background-image:linear-gradient(#525252fc,#454545f2)}#toolbarViewer{height:32px;display:flex;flex-direction:row;justify-content:flex-end;align-items:center}button{background:none;width:53px;height:25px;min-width:16px;padding:2px 6px 0;border:1px solid transparent;border-radius:2px;color:#fffc;font-size:12px;line-height:14px;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;cursor:pointer;transition-property:background-color,border-color,box-shadow;transition-duration:.15s;transition-timing-function:ease}button:hover{background-color:#0000001f;background-image:linear-gradient(#ffffff0d,#fff0);background-clip:padding-box;border:1px solid hsla(0,0%,0%,.35);border-color:hsla(0,0%,0%,.32) hsla(0,0%,0%,.38) hsla(0,0%,0%,.42);box-shadow:0 1px #ffffff0d inset,0 0 1px #ffffff26 inset,0 1px #ffffff0d}.loadingSpin{display:none;position:relative;top:0;left:0;width:100%;height:100%;background-color:#00000040;z-index:1000}.loader{z-index:1001;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border:16px solid #f3f3f3;border-radius:50%;border-top:16px solid #3498db;width:120px;height:120px;-webkit-animation:spin 2s linear infinite;animation:spin 2s linear infinite}@-webkit-keyframes spin{0%{-webkit-transform:rotate(0deg)}to{-webkit-transform:rotate(360deg)}}@keyframes spin{0%{transform:rotate(0)}to{transform:rotate(360deg)}}\n"] });
 }
 i0.ɵɵngDeclareClassMetadata({ minVersion: "12.0.0", version: "17.3.12", ngImport: i0, type: PdfJsViewerComponent, decorators: [{
             type: Component,
-            args: [{
-                    selector: "ng2-pdfjs-viewer",
-                    template: `
-    <style>
-      .toolbar {
-        position: relative;
-        left: 0;
-        right: 0;
-        z-index: 9999;
-        cursor: default;
-        display: none;
-      }
-
-      #toolbarContainer {
-        width: 100%;
-      }
-
-      #toolbarContainer {
-        position: relative;
-        height: 32px;
-        background-color: #474747;
-        background-image: linear-gradient(
-          hsla(0, 0%, 32%, 0.99),
-          hsla(0, 0%, 27%, 0.95)
-        );
-      }
-
-      #toolbarViewer {
-        height: 32px;
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-end;
-        align-items: center;
-      }
-
-      button {
-        background: none;
-        width: 53px;
-        height: 25px;
-        min-width: 16px;
-        padding: 2px 6px 0;
-        border: 1px solid transparent;
-        border-radius: 2px;
-        color: hsla(0, 0%, 100%, 0.8);
-        font-size: 12px;
-        line-height: 14px;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-        /* Opera does not support user-select, use <... unselectable="on"> instead */
-        cursor: pointer;
-        transition-property: background-color, border-color, box-shadow;
-        transition-duration: 150ms;
-        transition-timing-function: ease;
-      }
-
-      button:hover {
-        background-color: hsla(0, 0%, 0%, 0.12);
-        background-image: linear-gradient(
-          hsla(0, 0%, 100%, 0.05),
-          hsla(0, 0%, 100%, 0)
-        );
-        background-clip: padding-box;
-        border: 1px solid hsla(0, 0%, 0%, 0.35);
-        border-color: hsla(0, 0%, 0%, 0.32) hsla(0, 0%, 0%, 0.38)
-          hsla(0, 0%, 0%, 0.42);
-        box-shadow: 0 1px 0 hsla(0, 0%, 100%, 0.05) inset,
-          0 0 1px hsla(0, 0%, 100%, 0.15) inset, 0 1px 0 hsla(0, 0%, 100%, 0.05);
-      }
-
-      .loadingSpin {
-        display: none;
-        position: relative;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.25);
-        z-index: 1000;
-      }
-
-      .loader {
-        z-index: 1001;
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        border: 16px solid #f3f3f3;
-        border-radius: 50%;
-        border-top: 16px solid #3498db;
-        width: 120px;
-        height: 120px;
-        -webkit-animation: spin 2s linear infinite; /* Safari */
-        animation: spin 2s linear infinite;
-      }
-
-      /* Safari */
-      @-webkit-keyframes spin {
-        0% {
-          -webkit-transform: rotate(0deg);
-        }
-        100% {
-          -webkit-transform: rotate(360deg);
-        }
-      }
-
-      @keyframes spin {
-        0% {
-          transform: rotate(0deg);
-        }
-        100% {
-          transform: rotate(360deg);
-        }
-      }
-    </style>
-    <div #viewWordBar class="toolbar">
-      <div id="toolbarContainer">
-        <div id="toolbarViewer">
-          <button
-            id="download"
-            (click)="downloadWordFile()"
-            class="toolbarButton download"
-            title="Download"
-            tabindex="34"
-            data-l10n-id="download"
-          >
-            <img
-              src="/assets/pdfjs/web/images/toolbarButton-download.png"
-              alt="Download"
-            />
-          </button>
-
-          <button
-            id="closeFile"
-            (click)="closeWordFile()"
-            class="toolbarButton"
-            title="Close"
-            tabindex="36"
-            data-l10n-id="closeFile"
-          >
-            <img src="/assets/pdfjs/web/images/close-file.png" alt="Close" />
-          </button>
-        </div>
-      </div>
-    </div>
-    <div #loadingSpin class="loadingSpin">
-      <div class="loader"></div>
-    </div>
-    <iframe
-      id="iframeDocx"
-      #iframeDocx
-      title="ng2-pdfjs-viewer"
-      [hidden]="externalWindow || (!externalWindow && !pdfSrc)"
-      width="100%"
-      height="100%"
-    ></iframe>
-
-    <iframe
-      id="iframePDF"
-      #iframePDF
-      title="ng2-pdfjs-viewer"
-      [hidden]="externalWindow || (!externalWindow && !pdfSrc)"
-      width="100%"
-      height="100%"
-    ></iframe>
-  `,
-                }]
+            args: [{ selector: "ng2-pdfjs-viewer", template: "<div #viewWordBar class=\"toolbar\">\r\n\t<div id=\"toolbarContainer\">\r\n\t\t<div id=\"toolbarViewer\">\r\n\t\t\t<button id=\"download\" (click)=\"downloadWordFile()\" class=\"toolbarButton download\" title=\"Download\" tabindex=\"34\" data-l10n-id=\"download\">\r\n\t\t\t\t<img src=\"/assets/pdfjs/web/images/toolbarButton-download.png\" alt=\"Download\" />\r\n\t\t\t</button>\r\n\r\n\t\t\t<button id=\"closeFile\" (click)=\"closeWordFile()\" class=\"toolbarButton\" title=\"Close\" tabindex=\"36\" data-l10n-id=\"closeFile\">\r\n\t\t\t\t<img src=\"/assets/pdfjs/web/images/close-file.png\" alt=\"Close\" />\r\n\t\t\t</button>\r\n\t\t</div>\r\n\t</div>\r\n</div>\r\n<div #loadingSpin class=\"loadingSpin\">\r\n\t<div class=\"loader\"></div>\r\n</div>\r\n<iframe id=\"iframeDocx\" #iframeDocx title=\"ng2-pdfjs-viewer\" [hidden]=\"externalWindow || (!externalWindow && !pdfSrc)\" width=\"100%\" height=\"100%\"></iframe>\r\n\r\n<iframe id=\"iframePDF\" #iframePDF title=\"ng2-pdfjs-viewer\" [hidden]=\"externalWindow || (!externalWindow && !pdfSrc)\" width=\"100%\" height=\"100%\"></iframe>\r\n", styles: [".toolbar{position:relative;left:0;right:0;z-index:9999;cursor:default;display:none}#toolbarContainer{width:100%}#toolbarContainer{position:relative;height:32px;background-color:#474747;background-image:linear-gradient(#525252fc,#454545f2)}#toolbarViewer{height:32px;display:flex;flex-direction:row;justify-content:flex-end;align-items:center}button{background:none;width:53px;height:25px;min-width:16px;padding:2px 6px 0;border:1px solid transparent;border-radius:2px;color:#fffc;font-size:12px;line-height:14px;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;cursor:pointer;transition-property:background-color,border-color,box-shadow;transition-duration:.15s;transition-timing-function:ease}button:hover{background-color:#0000001f;background-image:linear-gradient(#ffffff0d,#fff0);background-clip:padding-box;border:1px solid hsla(0,0%,0%,.35);border-color:hsla(0,0%,0%,.32) hsla(0,0%,0%,.38) hsla(0,0%,0%,.42);box-shadow:0 1px #ffffff0d inset,0 0 1px #ffffff26 inset,0 1px #ffffff0d}.loadingSpin{display:none;position:relative;top:0;left:0;width:100%;height:100%;background-color:#00000040;z-index:1000}.loader{z-index:1001;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border:16px solid #f3f3f3;border-radius:50%;border-top:16px solid #3498db;width:120px;height:120px;-webkit-animation:spin 2s linear infinite;animation:spin 2s linear infinite}@-webkit-keyframes spin{0%{-webkit-transform:rotate(0deg)}to{-webkit-transform:rotate(360deg)}}@keyframes spin{0%{transform:rotate(0)}to{transform:rotate(360deg)}}\n"] }]
         }], propDecorators: { viewWordBar: [{
                 type: ViewChild,
                 args: ["viewWordBar", { static: true }]

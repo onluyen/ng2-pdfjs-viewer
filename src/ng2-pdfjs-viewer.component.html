@@ -1,0 +1,19 @@
+<div #viewWordBar class="toolbar">
+	<div id="toolbarContainer">
+		<div id="toolbarViewer">
+			<button id="download" (click)="downloadWordFile()" class="toolbarButton download" title="Download" tabindex="34" data-l10n-id="download">
+				<img src="/assets/pdfjs/web/images/toolbarButton-download.png" alt="Download" />
+			</button>
+
+			<button *ngIf="closeEvent?.observers?.length" id="closeFile" (click)="closeWordFile()" class="toolbarButton" title="Close" tabindex="36" data-l10n-id="closeFile">
+				<img src="/assets/pdfjs/web/images/close-file.png" alt="Close" />
+			</button>
+		</div>
+	</div>
+</div>
+<div #loadingSpin class="loadingSpin">
+	<div class="loader"></div>
+</div>
+<iframe id="iframeDocx" #iframeDocx title="ng2-pdfjs-viewer" [hidden]="externalWindow || (!externalWindow && !pdfSrc)" width="100%" height="100%"></iframe>
+
+<iframe id="iframePDF" #iframePDF title="ng2-pdfjs-viewer" [hidden]="externalWindow || (!externalWindow && !pdfSrc)" width="100%" height="100%"></iframe>

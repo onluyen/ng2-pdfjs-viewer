@@ -1,17 +1,64 @@
+/* To learn more about this file see: https://angular.io/config/tsconfig. */
 {
+  "compileOnSave": false,
   "compilerOptions": {
     "baseUrl": "./src",
+    "forceConsistentCasingInFileNames": true,
+    "strict": false,
+    "skipLibCheck": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": false,
+    "noImplicitReturns": false,
+    "noFallthroughCasesInSwitch": true,
+    "sourceMap": true,
+    "declaration": false,
+    "downlevelIteration": true,
     "experimentalDecorators": true,
     "moduleResolution": "node",
-    "rootDir": "./src",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "importHelpers": true,
+    "target": "ES2022",
+    "module": "ES2022",
+    "useDefineForClassFields": false,
     "lib": [
       "ES2022",
       "dom"
     ],
-    "skipLibCheck": true,
-    "target": "ES2022",
+    "noImplicitAny": false,
+    "strictPropertyInitialization": false,
+    "strictNullChecks": false,
+    "allowJs": true,
     "types": [
       "node"
     ]
-  }
+  },
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "strictTemplates": true,
+    "preserveSymlinks": true,
+    "fullTemplateTypeCheck": true,
+    "preserveWhitespaces": true,
+    "_enabledBlockTypes": [
+      "if",
+      "for",
+      "switch",
+      "defer"
+    ]
+  },
+  "exclude": [
+    ".git",
+    ".app-cache",
+    ".npm",
+    ".npm-tmp",
+    "dist",
+    "dist*",
+    "node_modules",
+    "subfolder/dist",
+    "subfolder/node_modules",
+    "**/dist/*",
+    "**/node_modules/*",
+  ]
 }
