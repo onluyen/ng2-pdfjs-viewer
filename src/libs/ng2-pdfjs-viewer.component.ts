@@ -142,18 +142,20 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 			let url = this.getUrlFile();
 			let ext = this.getFileExtension(url);
 			if (this.isValidFile(ext)) {
-				const _urlFile = decodeURIComponent(url);
-				const _checkExtWithoutPdf = this.isValidFile(this.getFileExtension(_urlFile.split('.pdf')[0]));
+				const _checkExtWithoutPdf = this.isValidFile(this.getFileExtension(url.split('.pdf')[0]));
 				if (_checkExtWithoutPdf) {
-					_urlFile.replace('.pdf', '');
+					url.replace('.pdf', '');
 				}
-
 				this.viewWordBar.nativeElement.style.display = 'block';
 				this.iframeDocx.nativeElement.style.display = 'block';
-				this.viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${_urlFile}`;
+				this.viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${url}`;
 				this.iframeDocx.nativeElement.src = this.viewerUrl;
 
 				this.iframeDocx.nativeElement.addEventListener('load', () => {
+					if (!this.iframeDocx.nativeElement.contentDocument || !this.iframeDocx.nativeElement.contentDocument.body.innerHTML) {
+						console.log('Timeout: Google Viewer is slow, switching to Microsoft Office Viewer.');
+					}
+
 					console.log('load iframe');
 					setTimeout(() => {
 						if (this.loadingSpin && this.loadingSpin.nativeElement) {
@@ -161,13 +163,12 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 						}
 					}, 1000);
 				});
-
-				this.iframeDocx.nativeElement.addEventListener('error', () => {
+				this.iframeDocx.nativeElement.onerror = () => {
 					console.error('Error loading iframe');
 					// Hiển thị thông báo lỗi cho người dùng
-					this.viewerUrl = `https://docs.google.com/gview?url=${_urlFile}&embedded=true`;
+					this.viewerUrl = `https://docs.google.com/gview?url=${url}&embedded=true`;
 					this.iframeDocx.nativeElement.src = this.viewerUrl;
-				});
+				};
 			} else {
 				console.log('Định dạng không hợp lệ!');
 			}
