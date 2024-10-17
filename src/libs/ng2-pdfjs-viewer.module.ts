@@ -1,9 +1,10 @@
 import { ModuleWithProviders, NgModule } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { PdfJsViewerComponent } from "./ng2-pdfjs-viewer.component";
+import { HttpClientModule } from "@angular/common/http";
 
 @NgModule({
-  imports: [CommonModule],
+  imports: [CommonModule, HttpClientModule],
   declarations: [PdfJsViewerComponent],
   exports: [PdfJsViewerComponent],
 })

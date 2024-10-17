@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, Input, Output, ViewChild, EventEmitter, ElementRef, OnDestroy, OnInit } from '@angular/core';
 
 @Component({
@@ -84,6 +85,8 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 		}
 	}
 
+	constructor(private http: HttpClient) {}
+
 	public get pdfSrc() {
 		return this._src;
 	}
@@ -136,52 +139,55 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 		if (viewerEvent.data && viewerEvent.data.event === 'closefile') {
 			this.closeFile.emit(true);
 		} else if (viewerEvent.data && viewerEvent.data.event === 'loaderError') {
-			this.loadingSpin.nativeElement.style.display = 'block';
-			this.iframePDF.nativeElement.style.display = 'none';
-
-			let url = this.getUrlFile();
-			let ext = this.getFileExtension(url);
-			if (this.isValidFile(ext)) {
-				const _checkExtWithoutPdf = this.isValidFile(this.getFileExtension(url.split('.pdf')[0]));
-				if (_checkExtWithoutPdf) {
-					url.replace('.pdf', '');
-				}
-				this.viewWordBar.nativeElement.style.display = 'block';
-				this.iframeDocx.nativeElement.style.display = 'block';
-				this.viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${url}`;
-				this.iframeDocx.nativeElement.src = this.viewerUrl;
-
-				this.iframeDocx.nativeElement.onload = () => {
-					setTimeout(() => {
-						if (this.loadingSpin && this.loadingSpin.nativeElement) {
-							this.loadingSpin.nativeElement.style.display = 'none';
-						}
-					}, 1000);
-				};
-				this.iframeDocx.nativeElement.onerror = () => {
-					console.error('Error loading iframe');
-					// Hiển thị thông báo lỗi cho người dùng
-					this.viewerUrl = `https://docs.google.com/gview?url=${url}&embedded=true`;
-					this.iframeDocx.nativeElement.src = this.viewerUrl;
-				};
-			} else {
-				console.log('Định dạng không hợp lệ!');
-			}
+			this.loadDocument();
 		}
 	}
 
-	checkFile(url) {
-		fetch(url, { method: 'HEAD' })
-			.then((response) => {
-				if (response.ok) {
-					console.log('ok');
-				} else {
-					alert('File PPTX không tồn tại hoặc không thể truy cập.');
-				}
-			})
-			.catch(() => {
-				alert('Có lỗi khi tải file PPTX.');
+	// check view file
+	loadDocument() {
+		this.loadingSpin.nativeElement.style.display = 'block';
+		this.iframePDF.nativeElement.style.display = 'none';
+		let url = this.getUrlFile();
+		let ext = this.getFileExtension(url);
+		console.log(ext);
+		if (this.isValidFile(ext)) {
+			const _checkExtWithoutPdf = this.isValidFile(this.getFileExtension(url.split('.pdf')[0]));
+			if (_checkExtWithoutPdf) {
+				url.replace('.pdf', '');
+			}
+
+			this.viewWordBar.nativeElement.style.display = 'block';
+			this.iframeDocx.nativeElement.style.display = 'block';
+
+			this.http.head(url, { observe: 'response' }).subscribe({
+				next: (response) => {
+					if (response.status === 200) {
+						this.viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${url}`;
+						this.iframeDocx.nativeElement.src = this.viewerUrl;
+
+						if (this.loadingSpin && this.loadingSpin.nativeElement) {
+							this.loadingSpin.nativeElement.style.display = 'none';
+						}
+					} else {
+						this.viewerUrl = `https://docs.google.com/gview?url=${url}&embedded=true`;
+						this.iframeDocx.nativeElement.src = this.viewerUrl;
+						if (this.loadingSpin && this.loadingSpin.nativeElement) {
+							this.loadingSpin.nativeElement.style.display = 'none';
+						}
+					}
+				},
+				error: () => {
+					console.error('Lỗi khi tải tài liệu, chuyển sang google view!');
+					this.viewerUrl = `https://docs.google.com/gview?url=${url}&embedded=true`;
+					this.iframeDocx.nativeElement.src = this.viewerUrl;
+					if (this.loadingSpin && this.loadingSpin.nativeElement) {
+						this.loadingSpin.nativeElement.style.display = 'none';
+					}
+				},
 			});
+		} else {
+			alert('Định dạng không hợp lệ!');
+		}
 	}
 
 	downloadFile() {
@@ -231,17 +237,9 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 
 	getFileExtension(filename) {
 		let ext = decodeURIComponent(filename).split('?')[0].split('.').pop();
-
 		if (!ext) {
 			ext = decodeURIComponent(filename).split('/').pop().split('.').pop();
 		}
-
-		// return decodeURIComponent(filename).split("/").pop().split(".").pop();
-		// return decodeURIComponent(filename).split("?")[0].split(".").pop();
-		// const ext = /^.+\.([^.]+)$/.exec(filename);
-		// return ext == null ? "" : ext[1];
-		console.log('ext: ' + ext);
-
 		return ext;
 	}
 
