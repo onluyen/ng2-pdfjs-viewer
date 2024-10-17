@@ -7,6 +7,10 @@
     display: none;
 }
 
+#iframeDocx{
+    height: calc(100% - 32px) !important;
+}
+
 #toolbarContainer {
     width: 100%;
 }

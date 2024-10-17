@@ -151,18 +151,13 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 				this.viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${url}`;
 				this.iframeDocx.nativeElement.src = this.viewerUrl;
 
-				this.iframeDocx.nativeElement.addEventListener('load', () => {
-					if (!this.iframeDocx.nativeElement.contentDocument || !this.iframeDocx.nativeElement.contentDocument.body.innerHTML) {
-						console.log('Timeout: Google Viewer is slow, switching to Microsoft Office Viewer.');
-					}
-
-					console.log('load iframe');
+				this.iframeDocx.nativeElement.onload = () => {
 					setTimeout(() => {
 						if (this.loadingSpin && this.loadingSpin.nativeElement) {
 							this.loadingSpin.nativeElement.style.display = 'none';
 						}
 					}, 1000);
-				});
+				};
 				this.iframeDocx.nativeElement.onerror = () => {
 					console.error('Error loading iframe');
 					// Hiển thị thông báo lỗi cho người dùng
@@ -173,6 +168,20 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 				console.log('Định dạng không hợp lệ!');
 			}
 		}
+	}
+
+	checkFile(url) {
+		fetch(url, { method: 'HEAD' })
+			.then((response) => {
+				if (response.ok) {
+					console.log('ok');
+				} else {
+					alert('File PPTX không tồn tại hoặc không thể truy cập.');
+				}
+			})
+			.catch(() => {
+				alert('Có lỗi khi tải file PPTX.');
+			});
 	}
 
 	downloadFile() {
