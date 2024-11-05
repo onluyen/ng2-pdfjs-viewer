@@ -158,14 +158,9 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 			if (_checkExtWithoutPdf) {
 				url.replace('.pdf', '');
 			}
-
 			this.iframeDocx.nativeElement.style.display = 'block';
 			this.subscription = this.http.head(url, { observe: 'response' }).subscribe({
 				next: (response) => {
-
-					console.log(response);
-					
-
 					if (response.status === 200) {
 						this.viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${url}`;
 						this.iframeDocx.nativeElement.querySelector('iframe').src = this.viewerUrl;
@@ -179,11 +174,7 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 						this.loadingSpin.nativeElement.style.display = 'none';
 					}
 				},
-				error: (err) => {
-
-					console.log(err);
-					
-
+				error: () => {
 					console.error('2. Lỗi khi tải tài liệu, chuyển sang google view!');
 					this.viewerUrl = `https://docs.google.com/gview?url=${url}&embedded=true`;
 					this.iframeDocx.nativeElement.querySelector('iframe').src = this.viewerUrl;
@@ -194,7 +185,7 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 				},
 			});
 		} else {
-			alert('Định dạng không hợp lệ!');
+			console.log('Định dạng không hợp lệ!');
 		}
 	}
 
@@ -434,7 +425,6 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 
 		console.log(`
       pdfSrc = ${this.pdfSrc}
-      externalWindow = ${this.externalWindow}
       downloadFileName = ${this.downloadFileName}
     `);
 
@@ -465,6 +455,6 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 	ngOnDestroy(): void {
 		this.relaseUrl?.();
 		this.subscription?.unsubscribe();
-		window.removeEventListener('message', this.listener, false); 
+		window.removeEventListener('message', this.listener, false);
 	}
 }
