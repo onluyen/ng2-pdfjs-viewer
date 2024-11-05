@@ -1,5 +1,5 @@
 @if (selectFile?.url) {
-	<div class="frame-container" style="height: 90vh;">
+	<div class="frame-container" style="height: 90vh; border: 1px solid;">
 		<ng2-pdfjs-viewer [downloadFileName]="selectFile.title" [pdfSrc]="selectFile?.url" [fullScreen]="false" locale="vi-VN" [print]="false" pagemode="none" [openFile]="false"></ng2-pdfjs-viewer>
 	</div>
 } @else {

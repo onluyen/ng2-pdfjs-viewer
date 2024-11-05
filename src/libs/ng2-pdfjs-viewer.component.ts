@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, Input, Output, ViewChild, EventEmitter, ElementRef, OnDestroy, OnInit } from '@angular/core';
+import { Subscription } from 'rxjs';
 
 @Component({
 	selector: 'ng2-pdfjs-viewer',
@@ -7,7 +8,6 @@ import { Component, Input, Output, ViewChild, EventEmitter, ElementRef, OnDestro
 	styleUrls: ['./ng2-pdfjs-viewer.component.scss'],
 })
 export class PdfJsViewerComponent implements OnInit, OnDestroy {
-	@ViewChild('viewWordBar', { static: true }) viewWordBar: ElementRef;
 	@ViewChild('loadingSpin', { static: true }) loadingSpin: ElementRef;
 	@ViewChild('iframeDocx', { static: true }) iframeDocx: ElementRef;
 	@ViewChild('iframePDF', { static: true }) iframePDF: ElementRef;
@@ -54,6 +54,9 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 	@Output() closeFile: EventEmitter<boolean> = new EventEmitter();
 
 	viewerUrl;
+
+	subscription: Subscription;
+	private listener: (event: MessageEvent) => void;
 
 	@Input()
 	public set page(_page: number) {
@@ -156,30 +159,35 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 				url.replace('.pdf', '');
 			}
 
-			this.viewWordBar.nativeElement.style.display = 'block';
 			this.iframeDocx.nativeElement.style.display = 'block';
-
-			this.http.head(url, { observe: 'response' }).subscribe({
+			this.subscription = this.http.head(url, { observe: 'response' }).subscribe({
 				next: (response) => {
+
+					console.log(response);
+					
+
 					if (response.status === 200) {
 						this.viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${url}`;
-						this.iframeDocx.nativeElement.src = this.viewerUrl;
-
-						if (this.loadingSpin && this.loadingSpin.nativeElement) {
-							this.loadingSpin.nativeElement.style.display = 'none';
-						}
+						this.iframeDocx.nativeElement.querySelector('iframe').src = this.viewerUrl;
 					} else {
+						console.error('1. Lỗi khi tải tài liệu, chuyển sang google view!');
 						this.viewerUrl = `https://docs.google.com/gview?url=${url}&embedded=true`;
-						this.iframeDocx.nativeElement.src = this.viewerUrl;
-						if (this.loadingSpin && this.loadingSpin.nativeElement) {
-							this.loadingSpin.nativeElement.style.display = 'none';
-						}
+						this.iframeDocx.nativeElement.querySelector('iframe').src = this.viewerUrl;
+					}
+
+					if (this.loadingSpin && this.loadingSpin.nativeElement) {
+						this.loadingSpin.nativeElement.style.display = 'none';
 					}
 				},
-				error: () => {
-					console.error('Lỗi khi tải tài liệu, chuyển sang google view!');
+				error: (err) => {
+
+					console.log(err);
+					
+
+					console.error('2. Lỗi khi tải tài liệu, chuyển sang google view!');
 					this.viewerUrl = `https://docs.google.com/gview?url=${url}&embedded=true`;
-					this.iframeDocx.nativeElement.src = this.viewerUrl;
+					this.iframeDocx.nativeElement.querySelector('iframe').src = this.viewerUrl;
+
 					if (this.loadingSpin && this.loadingSpin.nativeElement) {
 						this.loadingSpin.nativeElement.style.display = 'none';
 					}
@@ -244,7 +252,9 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnInit(): void {
-		window.addEventListener('message', this.receiveMessage.bind(this), false);
+		this.listener = this.receiveMessage.bind(this);
+		window.addEventListener('message', this.listener, false);
+
 		if (!this.externalWindow) {
 			// Load pdf for embedded views
 			this.loadPdf();
@@ -263,7 +273,6 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 			return;
 		}
 		this.viewerUrl = '';
-		this.viewWordBar.nativeElement.style.display = 'none';
 		// console.log(`Tab is - ${this.viewerTab}`);
 		// if (this.viewerTab) {
 		//   console.log(`Status of window - ${this.viewerTab.closed}`);
@@ -455,5 +464,7 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 
 	ngOnDestroy(): void {
 		this.relaseUrl?.();
+		this.subscription?.unsubscribe();
+		window.removeEventListener('message', this.listener, false); 
 	}
 }
