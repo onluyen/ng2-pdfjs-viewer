@@ -1,25 +1,58 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, inject, ViewChild } from '@angular/core';
 import { PdfJsViewerModule } from '../..';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 @Component({
 	selector: 'app-root',
 	standalone: true,
-	imports: [RouterOutlet, PdfJsViewerModule],
+	imports: [PdfJsViewerModule],
 	templateUrl: './app.component.html',
 	styleUrl: './app.component.scss',
 })
 export class AppComponent {
+
+	@ViewChild('pdfJs') pdfJs: any;
+
 	title = 'test-18';
 	selectFile = {
 		title: 'Dạng tài liệu pptx2',
-		// url: "https://s3.ap-southeast-1.amazonaws.com/learning-assets.onluyen.vn/LMS/course/00000001002561b2d06c96bc/6704f585955b2c6307e14374.pptx?X-Amz-Expires=300&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIARNHFJRUSE4WF7AUK%2F20241015%2Fap-southeast-1%2Fs3%2Faws4_request&X-Amz-Date=20241015T063027Z&X-Amz-SignedHeaders=host&X-Amz-Signature=97754dbb009b95fa6e6011dea73737e1bb17b8bd17dc50acbdad6b0755ff89ee"
 
+		url: 'https%3A%2F%2Fdiy67u2u0u3eb.cloudfront.net%2Fassignment%2F2024%2FFileShare%2F66f11beb1a1ed8fed079d78a%2F67495d20b66f1bf796def8c9.pdf',
 
-		// url: "https://s3.ap-southeast-1.amazonaws.com/learning-assets.onluyen.vn/LMS/course/66822b6b137a76dac93bce61/668265fef625cf9cda4ef9dc.pptx?X-Amz-Expires=300&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIARNHFJRUSE4WF7AUK%2F20241018%2Fap-southeast-1%2Fs3%2Faws4_request&X-Amz-Date=20241018T014749Z&X-Amz-SignedHeaders=host&X-Amz-Signature=78db9d372ec54729e274dc06c800372beb02b46ba5302609a00b794eeabfbe6c"
-	
-		url: 'https://diy67u2u0u3eb.cloudfront.net/pdf-2025/assignment/config/50227/20241014/670cd87e76203a79bc69eff5.pdf'
-	
-		// url: 'https://learning-assets.onluyen.vn/LMS/course/66822b6b137a76dac93bce61/document/66822b93137a76dac93bce65.pdf'
+		// url: 'https://d10u0oajcer5vm.cloudfront.net/FileShare/assignment/config/673d4a7b774500c2bdf7ac75/6747db3f904ddbc9afac139c.docx.pdf',
 	};
+	
+
+	selectFile2 = {
+		title: 'Dạng tài liệu pptx2',
+
+		url: 'https%3A%2F%2Fdiy67u2u0u3eb.cloudfront.net%2Fassignment%2F2024%2FFileShare%2F66f11beb1a1ed8fed079d78a%2F67495d20b66f1bf796def8c9.pdf',
+
+		// url: 'https://d10u0oajcer5vm.cloudfront.net/FileShare/assignment/config/673d4a7b774500c2bdf7ac75/6747db3f904ddbc9afac139c.docx.pdf',
+	};
+
+	testURL = 'https://d10u0oajcer5vm.cloudfront.net/assignment/config/79761508/20241126/6744fc7eee33c881b93da3bb.pdf';
+
+	http = inject(HttpClient);
+
+	ngOnInit() {
+		// setTimeout(() => {
+		// 	this.http.get(this.testURL, { responseType: 'blob' as 'json', headers: new HttpHeaders(`Content-Type: application/pdf`) }).subscribe((res) => {
+		// 		console.log(res);
+		// 	});
+		// }, 3000);
+	}
+
+	swtichFile(index){
+		if(index === 1){
+			this.selectFile.url = this.selectFile2.url
+		}else{
+			this.selectFile.url = this.testURL
+		}
+
+		console.log(this.selectFile);
+		
+
+		this.pdfJs?.refresh();
+	}
 }

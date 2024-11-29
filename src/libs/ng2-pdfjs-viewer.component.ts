@@ -156,17 +156,19 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 		if (this.isValidFile(ext)) {
 			const _checkExtWithoutPdf = this.isValidFile(this.getFileExtension(url.split('.pdf')[0]));
 			if (_checkExtWithoutPdf) {
-				url.replace('.pdf', '');
+				url = url.split('.pdf')[0] + (url.split('.pdf')[2] ?? '');
 			}
 			this.iframeDocx.nativeElement.style.display = 'block';
 			this.subscription = this.http.head(url, { observe: 'response' }).subscribe({
 				next: (response) => {
 					if (response.status === 200) {
-						this.viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${url}`;
+						const _time = new Date().getTime();
+						this.viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${url}&t=${_time}`;
 						this.iframeDocx.nativeElement.querySelector('iframe').src = this.viewerUrl;
 					} else {
+						const _time = new Date().getTime();
 						console.error('1. Lỗi khi tải tài liệu, chuyển sang google view!');
-						this.viewerUrl = `https://docs.google.com/gview?url=${url}&embedded=true`;
+						this.viewerUrl = `https://docs.google.com/gview?url=${url}&embedded=true&t=${_time}`;
 						this.iframeDocx.nativeElement.querySelector('iframe').src = this.viewerUrl;
 					}
 
@@ -175,8 +177,9 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 					}
 				},
 				error: () => {
+					const _time = new Date().getTime();
 					console.error('2. Lỗi khi tải tài liệu, chuyển sang google view!');
-					this.viewerUrl = `https://docs.google.com/gview?url=${url}&embedded=true`;
+					this.viewerUrl = `https://docs.google.com/gview?url=${url}&embedded=true&t=${_time}`;
 					this.iframeDocx.nativeElement.querySelector('iframe').src = this.viewerUrl;
 
 					if (this.loadingSpin && this.loadingSpin.nativeElement) {
@@ -254,6 +257,12 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 
 	public refresh(): void {
 		// Needs to be invoked for external window or when needs to reload pdf
+		this.iframePDF.nativeElement.style.display = 'block';
+		this.iframePDF.nativeElement.src = '';
+
+		this.iframeDocx.nativeElement.style.display = 'none';
+		this.iframeDocx.nativeElement.querySelector('iframe').src = '';
+
 		this.loadPdf();
 	}
 
@@ -268,7 +277,6 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 		// if (this.viewerTab) {
 		//   console.log(`Status of window - ${this.viewerTab.closed}`);
 		// }
-
 		this.iframeDocx.nativeElement.style.display = 'none';
 
 		if (this.externalWindow && (typeof this.viewerTab === 'undefined' || this.viewerTab.closed)) {
@@ -314,7 +322,8 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 			this.viewerUrl = `assets/pdfjs/web/viewer.html`;
 		}
 
-		this.viewerUrl += `?file=${fileUrl}`;
+		const _time = new Date().getTime();
+		this.viewerUrl += `?file=${fileUrl}&t=${_time}`;
 
 		if (typeof this.viewerId !== 'undefined') {
 			this.viewerUrl += `&viewerId=${this.viewerId}`;
