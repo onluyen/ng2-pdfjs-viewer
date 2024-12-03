@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, Input, Output, ViewChild, EventEmitter, ElementRef, OnDestroy, OnInit } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { concatMap, interval, of, Subscription, take, takeWhile } from 'rxjs';
 
 @Component({
 	selector: 'ng2-pdfjs-viewer',
@@ -55,7 +55,7 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 
 	viewerUrl;
 
-	subscription: Subscription;
+	subscription = new Subscription();
 	private listener: (event: MessageEvent) => void;
 
 	@Input()
@@ -159,34 +159,36 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 				url = url.split('.pdf')[0] + (url.split('.pdf')[2] ?? '');
 			}
 			this.iframeDocx.nativeElement.style.display = 'block';
-			this.subscription = this.http.head(url, { observe: 'response' }).subscribe({
-				next: (response) => {
-					if (response.status === 200) {
+			this.subscription.add(
+				this.http.head(url, { observe: 'response' }).subscribe({
+					next: (response) => {
+						if (response.status === 200) {
+							const _time = new Date().getTime();
+							this.viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${url}&t=${_time}`;
+							this.iframeDocx.nativeElement.querySelector('iframe').src = this.viewerUrl;
+						} else {
+							const _time = new Date().getTime();
+							console.error('1. Lỗi khi tải tài liệu, chuyển sang google view!');
+							this.viewerUrl = `https://docs.google.com/gview?url=${url}&embedded=true&t=${_time}`;
+							this.iframeDocx.nativeElement.querySelector('iframe').src = this.viewerUrl;
+						}
+
+						if (this.loadingSpin && this.loadingSpin.nativeElement) {
+							this.loadingSpin.nativeElement.style.display = 'none';
+						}
+					},
+					error: () => {
 						const _time = new Date().getTime();
-						this.viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${url}&t=${_time}`;
-						this.iframeDocx.nativeElement.querySelector('iframe').src = this.viewerUrl;
-					} else {
-						const _time = new Date().getTime();
-						console.error('1. Lỗi khi tải tài liệu, chuyển sang google view!');
+						console.error('2. Lỗi khi tải tài liệu, chuyển sang google view!');
 						this.viewerUrl = `https://docs.google.com/gview?url=${url}&embedded=true&t=${_time}`;
 						this.iframeDocx.nativeElement.querySelector('iframe').src = this.viewerUrl;
-					}
 
-					if (this.loadingSpin && this.loadingSpin.nativeElement) {
-						this.loadingSpin.nativeElement.style.display = 'none';
-					}
-				},
-				error: () => {
-					const _time = new Date().getTime();
-					console.error('2. Lỗi khi tải tài liệu, chuyển sang google view!');
-					this.viewerUrl = `https://docs.google.com/gview?url=${url}&embedded=true&t=${_time}`;
-					this.iframeDocx.nativeElement.querySelector('iframe').src = this.viewerUrl;
-
-					if (this.loadingSpin && this.loadingSpin.nativeElement) {
-						this.loadingSpin.nativeElement.style.display = 'none';
-					}
-				},
-			});
+						if (this.loadingSpin && this.loadingSpin.nativeElement) {
+							this.loadingSpin.nativeElement.style.display = 'none';
+						}
+					},
+				}),
+			);
 		} else {
 			console.log('Định dạng không hợp lệ!');
 		}
@@ -255,6 +257,10 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 		}
 	}
 
+	checkSrc(currentSrc: any) {
+		return this._src !== currentSrc;
+	}
+
 	public refresh(): void {
 		// Needs to be invoked for external window or when needs to reload pdf
 		this.iframePDF.nativeElement.style.display = 'block';
@@ -263,7 +269,23 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 		this.iframeDocx.nativeElement.style.display = 'none';
 		this.iframeDocx.nativeElement.querySelector('iframe').src = '';
 
-		this.loadPdf();
+		let attempt = 0;
+		const _currentSrc = this._src;
+		this.subscription.add(
+			interval(500)
+				.pipe(
+					take(4),
+					concatMap(() => {
+						attempt++;
+						console.log(`${attempt}. Reload file!`);
+						return of(this.checkSrc(_currentSrc));
+					}),
+					takeWhile((result) => !result, true),
+				)
+				.subscribe(() => {
+					this.loadPdf();
+				}),
+		);
 	}
 
 	private relaseUrl?: () => void; // Avoid memory leask with `URL.createObjectURL`

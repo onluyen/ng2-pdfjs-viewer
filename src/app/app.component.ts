@@ -10,28 +10,32 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 	styleUrl: './app.component.scss',
 })
 export class AppComponent {
-
 	@ViewChild('pdfJs') pdfJs: any;
-
 	title = 'test-18';
+
 	selectFile = {
 		title: 'Dạng tài liệu pptx2',
 
-		url: 'https%3A%2F%2Fdiy67u2u0u3eb.cloudfront.net%2Fassignment%2F2024%2FFileShare%2F66f11beb1a1ed8fed079d78a%2F67495d20b66f1bf796def8c9.pdf',
+		url: 'https://d1bqydm276v5q5.cloudfront.net/assignment/2024/FileShare/673d55b1774500c2bdf7acc0/674811d81d564ef4bb8d9c8f.xlsx',
 
 		// url: 'https://d10u0oajcer5vm.cloudfront.net/FileShare/assignment/config/673d4a7b774500c2bdf7ac75/6747db3f904ddbc9afac139c.docx.pdf',
 	};
-	
 
 	selectFile2 = {
 		title: 'Dạng tài liệu pptx2',
 
-		url: 'https%3A%2F%2Fdiy67u2u0u3eb.cloudfront.net%2Fassignment%2F2024%2FFileShare%2F66f11beb1a1ed8fed079d78a%2F67495d20b66f1bf796def8c9.pdf',
+		url: 'https://d1bqydm276v5q5.cloudfront.net/assignment/2024/FileShare/673d55b1774500c2bdf7acc0/674811d81d564ef4bb8d9c8f.xlsx',
 
 		// url: 'https://d10u0oajcer5vm.cloudfront.net/FileShare/assignment/config/673d4a7b774500c2bdf7ac75/6747db3f904ddbc9afac139c.docx.pdf',
 	};
 
-	testURL = 'https://d10u0oajcer5vm.cloudfront.net/assignment/config/79761508/20241126/6744fc7eee33c881b93da3bb.pdf';
+	selectFile3 = {
+		title: 'Dạng tài liệu pdf',
+
+		url: 'https://d1bqydm276v5q5.cloudfront.net/assignment/2024/FileShare/673d55b1774500c2bdf7acc0/674811d8f6568baaca5ba5b0.pdf',
+
+		// url: 'https://d10u0oajcer5vm.cloudfront.net/FileShare/assignment/config/673d4a7b774500c2bdf7ac75/6747db3f904ddbc9afac139c.docx.pdf',
+	};
 
 	http = inject(HttpClient);
 
@@ -43,16 +47,13 @@ export class AppComponent {
 		// }, 3000);
 	}
 
-	swtichFile(index){
-		if(index === 1){
-			this.selectFile.url = this.selectFile2.url
-		}else{
-			this.selectFile.url = this.testURL
+	swtichFile(index) {
+		if (index === 1) {
+			this.selectFile = this.selectFile2;
+		} else {
+			this.selectFile = this.selectFile3;
 		}
-
-		console.log(this.selectFile);
-		
-
 		this.pdfJs?.refresh();
+		console.log(this.selectFile);
 	}
 }
