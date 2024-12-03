@@ -14,7 +14,6 @@
     "declaration": false,
     "experimentalDecorators": true,
     "moduleResolution": "node",
-    "resolveJsonModule": true,
     "esModuleInterop": true,
     "importHelpers": true,
     "target": "ES2022",

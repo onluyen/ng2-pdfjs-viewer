@@ -1,7 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, Input, Output, ViewChild, EventEmitter, ElementRef, OnDestroy, OnInit } from '@angular/core';
 import { concatMap, interval, of, Subscription, take, takeWhile } from 'rxjs';
-import * as packageJson from '../../package.json';
 
 @Component({
 	selector: 'ng2-pdfjs-viewer',
@@ -256,8 +255,6 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 			// Load pdf for embedded views
 			this.loadPdf();
 		}
-
-		console.log(`Ng2-Pdfjs-Viewer ${packageJson.version}`);
 	}
 
 	checkSrc(currentSrc: any) {
