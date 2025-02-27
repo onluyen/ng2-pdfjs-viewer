@@ -161,6 +161,7 @@ function getViewerConfiguration() {
       openFileButton: document.getElementById('secondaryOpenFile'),
       printButton: document.getElementById('secondaryPrint'),
       downloadButton: document.getElementById('secondaryDownload'),
+      closeFileSecond: document.getElementById('secondaryCloseFile'),
       viewBookmarkButton: document.getElementById('secondaryViewBookmark'),
       firstPageButton: document.getElementById('firstPage'),
       lastPageButton: document.getElementById('lastPage'),
@@ -2184,7 +2185,9 @@ var webViewerFileInputChange;
     appConfig.toolbar.viewBookmark.setAttribute('hidden', 'true');
     appConfig.secondaryToolbar.viewBookmarkButton.setAttribute('hidden', 'true');
     appConfig.toolbar.download.setAttribute('hidden', 'true');
+    appConfig.toolbar.closeButton.setAttribute('hidden', 'true');
     appConfig.secondaryToolbar.downloadButton.setAttribute('hidden', 'true');
+    appConfig.secondaryToolbar.closeFileSecond.setAttribute('hidden', 'true');
   };
 }
 
@@ -2230,6 +2233,8 @@ function webViewerZoomIn() {
 }
 
 function webViewerCloseFile() {
+  console.log(1111111111);
+  
   window.parent.postMessage({event: "closefile"}, "*");
 }
 
@@ -4607,6 +4612,7 @@ window.applyParameterOverride = function(config) {
   }
   if (window.getUrlParameterByName('closeFile') !== "true") {
     config.toolbar.closeFile.setAttribute('hidden', 'true');
+    config.secondaryToolbar.closeFileSecond.setAttribute('hidden', 'true');
   }
   if (window.getUrlParameterByName('viewBookmark') === "false") {
     config.toolbar.viewBookmark.setAttribute('hidden', 'true');
@@ -7862,6 +7868,8 @@ function () {
     });
 
     this.eventBus.on('closefile', function() {
+      console.log(22222222222);
+      
       window.parent.postMessage({event: "closefile"}, "*");
     });
   }
@@ -12999,7 +13007,13 @@ function () {
       element: options.downloadButton,
       eventName: 'download',
       close: true
-    }, {
+    }, 
+    {
+      element: options.closeFileSecond,
+      eventName: 'closefile',
+      close: true
+    },
+    {
       element: options.viewBookmarkButton,
       eventName: null,
       close: true

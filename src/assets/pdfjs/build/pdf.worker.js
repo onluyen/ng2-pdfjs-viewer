@@ -35908,36 +35908,63 @@ var Font = function FontClosure() {
       }
 
       function readTrueTypeCollectionData(ttc, fontName) {
-        var _readTrueTypeCollecti = readTrueTypeCollectionHeader(ttc),
-            numFonts = _readTrueTypeCollecti.numFonts,
-            offsetTable = _readTrueTypeCollecti.offsetTable;
+        const { numFonts, offsetTable } = readTrueTypeCollectionHeader(ttc);
+        const fontNameParts = fontName.split("+");
+        let fallbackData;
 
-        for (var i = 0; i < numFonts; i++) {
+        for (let i = 0; i < numFonts; i++) {
           ttc.pos = (ttc.start || 0) + offsetTable[i];
-          var potentialHeader = readOpenTypeHeader(ttc);
-          var potentialTables = readTables(ttc, potentialHeader.numTables);
-
-          if (!potentialTables['name']) {
-            throw new _util.FormatError('TrueType Collection font must contain a "name" table.');
+          const potentialHeader = readOpenTypeHeader(ttc);
+          const potentialTables = readTables(ttc, potentialHeader.numTables);
+  
+          if (!potentialTables.name) {
+            throw new FormatError(
+              'TrueType Collection font must contain a "name" table.'
+            );
           }
-
-          var nameTable = readNameTable(potentialTables['name']);
-
-          for (var j = 0, jj = nameTable.length; j < jj; j++) {
-            for (var k = 0, kk = nameTable[j].length; k < kk; k++) {
-              var nameEntry = nameTable[j][k];
-
-              if (nameEntry && nameEntry.replace(/\s/g, '') === fontName) {
+          const [nameTable] = readNameTable(potentialTables.name);
+  
+          for (let j = 0, jj = nameTable.length; j < jj; j++) {
+            for (let k = 0, kk = nameTable[j].length; k < kk; k++) {
+              const nameEntry = nameTable[j][k]?.replaceAll(/\s/g, "");
+              if (!nameEntry) {
+                continue;
+              }
+              if (nameEntry === fontName) {
                 return {
                   header: potentialHeader,
-                  tables: potentialTables
+                  tables: potentialTables,
                 };
+              }
+              if (fontNameParts.length < 2) {
+                continue;
+              }
+              for (const part of fontNameParts) {
+                if (nameEntry === part) {
+                  fallbackData = {
+                    name: part,
+                    header: potentialHeader,
+                    tables: potentialTables,
+                  };
+                }
               }
             }
           }
         }
 
-        throw new _util.FormatError("TrueType Collection does not contain \"".concat(fontName, "\" font."));
+        if (fallbackData) {
+          warn(
+            `TrueType Collection does not contain "${fontName}" font, ` +
+              `falling back to "${fallbackData.name}" font instead.`
+          );
+          return {
+            header: fallbackData.header,
+            tables: fallbackData.tables,
+          };
+        }
+        throw new FormatError(
+          `TrueType Collection does not contain "${fontName}" font.`
+        );
       }
 
       function readCmapTable(cmap, font, isSymbolicFont, hasEncoding) {

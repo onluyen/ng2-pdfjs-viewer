@@ -1,6 +1,6 @@
 import { Component, inject, ViewChild } from '@angular/core';
 import { PdfJsViewerModule } from '../..';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
 	selector: 'app-root',
@@ -15,26 +15,17 @@ export class AppComponent {
 
 	selectFile = {
 		title: 'Dạng tài liệu pptx2',
-
-		url: 'https://d1bqydm276v5q5.cloudfront.net/assignment/2024/FileShare/673d55b1774500c2bdf7acc0/674811d81d564ef4bb8d9c8f.xlsx',
-
-		// url: 'https://d10u0oajcer5vm.cloudfront.net/FileShare/assignment/config/673d4a7b774500c2bdf7ac75/6747db3f904ddbc9afac139c.docx.pdf',
+		url: null,
 	};
 
 	selectFile2 = {
 		title: 'Dạng tài liệu pptx2',
-
-		url: 'https://d1bqydm276v5q5.cloudfront.net/assignment/2024/FileShare/673d55b1774500c2bdf7acc0/674811d81d564ef4bb8d9c8f.xlsx',
-
-		// url: 'https://d10u0oajcer5vm.cloudfront.net/FileShare/assignment/config/673d4a7b774500c2bdf7ac75/6747db3f904ddbc9afac139c.docx.pdf',
+		url: null,
 	};
 
 	selectFile3 = {
 		title: 'Dạng tài liệu pdf',
-
-		url: 'https://d1bqydm276v5q5.cloudfront.net/assignment/2024/FileShare/673d55b1774500c2bdf7acc0/674811d8f6568baaca5ba5b0.pdf',
-
-		// url: 'https://d10u0oajcer5vm.cloudfront.net/FileShare/assignment/config/673d4a7b774500c2bdf7ac75/6747db3f904ddbc9afac139c.docx.pdf',
+		url: null,
 	};
 
 	http = inject(HttpClient);
@@ -45,6 +36,24 @@ export class AppComponent {
 		// 		console.log(res);
 		// 	});
 		// }, 3000);
+	}
+
+	onFileSelected(event: any) {
+		const file: File = event.target.files[0];
+		if (file && file.type === 'application/pdf') {
+			const reader = new FileReader();
+			reader.onload = () => {
+				this.selectFile = {
+					title: file.name,
+					url: URL.createObjectURL(file),
+				};
+				console.log(this.selectFile);
+				this.pdfJs?.refresh();
+			};
+			reader.readAsArrayBuffer(file);
+		} else {
+			console.log('Please select a valid PDF file.');
+		}
 	}
 
 	swtichFile(index) {

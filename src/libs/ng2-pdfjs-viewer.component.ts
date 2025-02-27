@@ -52,7 +52,7 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 
 	@Input() public closeButton: boolean;
 	@Output() closeFile: EventEmitter<boolean> = new EventEmitter();
-
+	@Input() public editor: boolean = true;
 	viewerUrl;
 
 	subscription = new Subscription();
@@ -140,6 +140,7 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 			}
 		}
 		if (viewerEvent.data && viewerEvent.data.event === 'closefile') {
+			console.log('close File!');
 			this.closeFile.emit(true);
 		} else if (viewerEvent.data && viewerEvent.data.event === 'loaderError') {
 			this.loadDocument();
@@ -364,6 +365,9 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 		}
 		if (typeof this.closeButton !== 'undefined') {
 			this.viewerUrl += `&closeFile=${this.closeButton}`;
+		}
+		if (typeof this.editor !== 'undefined') {
+			this.viewerUrl += `&editor=${this.editor}`;
 		}
 
 		if (this.downloadFileName) {
