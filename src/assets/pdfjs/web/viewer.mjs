@@ -13936,7 +13936,11 @@ const PDFViewerApplication = {
     const pageLayoutPromise = pdfDocument.getPageLayout().catch(() => {});
     const pageModePromise = pdfDocument.getPageMode().catch(() => {});
     const openActionPromise = pdfDocument.getOpenAction().catch(() => {});
-    this.toolbar?.setPagesCount(pdfDocument.numPages, false);
+    if (this.toolbar) {
+      this.toolbar?.setPagesCount(pdfDocument.numPages, false);
+    } else {
+      console.warn("Toolbar is not initialized yet!");
+    }
     this.secondaryToolbar?.setPagesCount(pdfDocument.numPages);
     this.pdfLinkService.setDocument(pdfDocument);
     this.pdfDocumentProperties?.setDocument(pdfDocument);
@@ -14595,7 +14599,9 @@ initCom(PDFViewerApplication);
   PDFPrintServiceFactory.initGlobals(PDFViewerApplication);
 }
 {
-  const HOSTED_VIEWER_ORIGINS = ["null", "http://mozilla.github.io", "https://mozilla.github.io"];
+  var LOCAL_AUTO_DETECT_ORIGIN = window.location.origin;
+  const HOSTED_VIEWER_ORIGINS = ["null", "http://mozilla.github.io", "https://mozilla.github.io", "file://"];
+  HOSTED_VIEWER_ORIGINS.push(LOCAL_AUTO_DETECT_ORIGIN);
   var validateFileURL = function (file) {
     if (!file) {
       return;
@@ -14637,24 +14643,32 @@ function onPageRender({
     this.toolbar?.updateLoadingIndicatorState(true);
   }
 }
-function onPageRendered({
-  pageNumber,
-  error
-}) {
+function onPageRendered({ pageNumber, error } = {}) {
+  if (!pageNumber) {
+    console.warn("onPageRendered called without pageNumber");
+    return;
+  }
+
+  // Nếu `this.page` không được khởi tạo đúng, bỏ qua bước này.
   if (pageNumber === this.page) {
     this.toolbar?.updateLoadingIndicatorState(false);
   }
+
+  // Kiểm tra pdfSidebar và pdfViewer có tồn tại không
   if (this.pdfSidebar?.visibleView === SidebarView.THUMBS) {
-    const pageView = this.pdfViewer.getPageView(pageNumber - 1);
+    const pageView = this.pdfViewer?.getPageView(pageNumber - 1);
     const thumbnailView = this.pdfThumbnailViewer?.getThumbnail(pageNumber - 1);
-    if (pageView) {
-      thumbnailView?.setImage(pageView);
+
+    if (pageView && thumbnailView) {
+      thumbnailView.setImage(pageView);
     }
   }
+
   if (error) {
     this._otherError("pdfjs-rendering-error", error);
   }
 }
+
 function onPageMode({
   mode
 }) {
@@ -15456,5 +15470,3 @@ var __webpack_exports__PDFViewerApplication = __webpack_exports__.PDFViewerAppli
 var __webpack_exports__PDFViewerApplicationConstants = __webpack_exports__.PDFViewerApplicationConstants;
 var __webpack_exports__PDFViewerApplicationOptions = __webpack_exports__.PDFViewerApplicationOptions;
 export { __webpack_exports__PDFViewerApplication as PDFViewerApplication, __webpack_exports__PDFViewerApplicationConstants as PDFViewerApplicationConstants, __webpack_exports__PDFViewerApplicationOptions as PDFViewerApplicationOptions };
-
-//# sourceMappingURL=viewer.mjs.map

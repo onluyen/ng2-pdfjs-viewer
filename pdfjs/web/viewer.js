@@ -1822,7 +1822,9 @@ var PDFViewerApplication = {
 exports.PDFViewerApplication = PDFViewerApplication;
 var validateFileURL;
 {
-  var HOSTED_VIEWER_ORIGINS = ['null', 'http://mozilla.github.io', 'https://mozilla.github.io'];
+  var LOCAL_AUTO_DETECT_ORIGIN = window.location.origin;
+  const HOSTED_VIEWER_ORIGINS = ["null", "http://mozilla.github.io", "https://mozilla.github.io", "file://"];
+  HOSTED_VIEWER_ORIGINS.push(LOCAL_AUTO_DETECT_ORIGIN);
 
   validateFileURL = function validateFileURL(file) {
     if (file === undefined) {
@@ -15941,4 +15943,3 @@ _app.PDFPrintServiceFactory.instance = {
 
 /***/ })
 /******/ ]);
-//# sourceMappingURL=viewer.js.map
