@@ -40,7 +40,7 @@ export class AppComponent {
 
 	onFileSelected(event: any) {
 		const file: File = event.target.files[0];
-		if (file && file.type === 'application/pdf') {
+		if (file) {
 			const reader = new FileReader();
 			reader.onload = () => {
 				this.selectFile = {

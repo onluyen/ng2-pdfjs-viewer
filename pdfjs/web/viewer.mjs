@@ -13883,6 +13883,8 @@ const PDFViewerApplication = {
     classList.remove("wait");
   },
   async _documentError(key, moreInfo = null) {
+    window.parent.postMessage({event: "loaderError"}, "*");
+    return;
     this._unblockDocumentLoadEvent();
     const message = await this._otherError(key || "pdfjs-loading-error", moreInfo);
     this.eventBus.dispatch("documenterror", {
