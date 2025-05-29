@@ -154,10 +154,6 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 		let ext = this.getFileExtension(url);
 		console.log(ext);
 		if (this.isValidFile(ext)) {
-			const _checkExtWithoutPdf = this.isValidFile(this.getFileExtension(url.split('.pdf')[0]));
-			if (_checkExtWithoutPdf) {
-				url = url.split('.pdf')[0] + (url.split('.pdf')[2] ?? '');
-			}
 			this.iframeDocx.nativeElement.style.display = 'block';
 			this.subscription.add(
 				this.http.head(url, { observe: 'response' }).subscribe({
@@ -195,7 +191,7 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 	}
 
 	downloadFile() {
-		let url = this.getUrlFile();
+		let url = decodeURIComponent(this.getUrlFile());
 		if (url) {
 			fetch(url).then((t) => {
 				return t.blob().then((b) => {
@@ -235,6 +231,10 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 			let blob = new Blob([this._src], { type: 'application/pdf' });
 			return encodeURIComponent(URL.createObjectURL(blob));
 		} else {
+			const _checkExtWithoutPdf = this.isValidFile(this.getFileExtension(this._src.split('.pdf')[0]));
+			if (_checkExtWithoutPdf) {
+				this._src = this._src.split('.pdf')[0] + (this._src.split('.pdf')[2] ?? '');
+			}
 			return this._src;
 		}
 	}

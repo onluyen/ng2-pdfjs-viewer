@@ -16,7 +16,7 @@ export class AppComponent {
 	selectFile = {
 		title: 'Dạng tài liệu pptx2',
 
-		url: 'https://d1bqydm276v5q5.cloudfront.net/assignment/2024/FileShare/673d55b1774500c2bdf7acc0/674811d81d564ef4bb8d9c8f.xlsx',
+		url: 'https://diy67u2u0u3eb.cloudfront.net/FileShare/assignment/config/6598c9da3b16bfc47f7a7ac9/67af01f9680ab3e31132c561.docx',
 
 		// url: 'https://d10u0oajcer5vm.cloudfront.net/FileShare/assignment/config/673d4a7b774500c2bdf7ac75/6747db3f904ddbc9afac139c.docx.pdf',
 	};

@@ -1,6 +1,6 @@
 {
   "name": "onluyen-pdf-viewer",
-  "version": "19.0.2",
+  "version": "19.0.3",
   "$schema": "./node_modules/ng-packagr/package.schema.json",
   "scripts": {
     "ng": "ng",
