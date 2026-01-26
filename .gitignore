@@ -50,3 +50,4 @@ debug.log
 
 bun.lockb
 dist
+bun.lock
