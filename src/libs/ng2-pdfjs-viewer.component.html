@@ -11,9 +11,11 @@
 						<img src="/assets/pdfjs/web/images/toolbarButton-download.png" alt="Download" />
 					</button>
 
-					<button *ngIf="closeButton" id="closeFile" (click)="closeWordFile()" class="toolbarButton" title="Close" tabindex="36" data-l10n-id="closeFile">
-						<img src="/assets/pdfjs/web/images/close-file.png" alt="Close" />
-					</button>
+					@if (closeButton) {
+						<button id="closeFile" (click)="closeWordFile()" class="toolbarButton" title="Close" tabindex="36" data-l10n-id="closeFile">
+							<img src="/assets/pdfjs/web/images/close-file.png" alt="Close" />
+						</button>
+					}
 				</div>
 			</div>
 		</div>

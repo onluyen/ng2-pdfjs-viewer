@@ -1,14 +1,18 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, Output, ViewChild, EventEmitter, ElementRef, OnDestroy, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, Input, Output, ViewChild, EventEmitter, ElementRef, OnDestroy, OnInit, inject } from '@angular/core';
 import { concatMap, interval, of, Subscription, take, takeWhile } from 'rxjs';
 
 @Component({
 	selector: 'ng2-pdfjs-viewer',
 	templateUrl: './ng2-pdfjs-viewer.component.html',
 	styleUrls: ['./ng2-pdfjs-viewer.component.scss'],
-	standalone: false
+	standalone: true,
+	imports: [CommonModule]
 })
 export class PdfJsViewerComponent implements OnInit, OnDestroy {
+	http = inject(HttpClient);
+
 	@ViewChild('loadingSpin', { static: true }) loadingSpin: ElementRef;
 	@ViewChild('iframeDocx', { static: true }) iframeDocx: ElementRef;
 	@ViewChild('iframePDF', { static: true }) iframePDF: ElementRef;
@@ -88,8 +92,6 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 			this._src = _src;
 		}
 	}
-
-	constructor(private http: HttpClient) {}
 
 	public get pdfSrc() {
 		return this._src;

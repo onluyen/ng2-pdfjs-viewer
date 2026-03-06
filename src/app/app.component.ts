@@ -1,11 +1,11 @@
 import { Component, inject, ViewChild } from '@angular/core';
-import { PdfJsViewerModule } from '../..';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { PdfJsViewerComponent } from '../libs/ng2-pdfjs-viewer.component';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
 	selector: 'app-root',
 	standalone: true,
-	imports: [PdfJsViewerModule],
+	imports: [PdfJsViewerComponent],
 	templateUrl: './app.component.html',
 	styleUrl: './app.component.scss',
 })
