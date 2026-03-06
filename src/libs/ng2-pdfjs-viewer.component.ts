@@ -6,6 +6,7 @@ import { concatMap, interval, of, Subscription, take, takeWhile } from 'rxjs';
 	selector: 'ng2-pdfjs-viewer',
 	templateUrl: './ng2-pdfjs-viewer.component.html',
 	styleUrls: ['./ng2-pdfjs-viewer.component.scss'],
+	standalone: false
 })
 export class PdfJsViewerComponent implements OnInit, OnDestroy {
 	@ViewChild('loadingSpin', { static: true }) loadingSpin: ElementRef;
@@ -228,7 +229,7 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 		if (this._src instanceof Blob) {
 			return encodeURIComponent(URL.createObjectURL(this._src));
 		} else if (this._src instanceof Uint8Array) {
-			let blob = new Blob([this._src], { type: 'application/pdf' });
+			let blob = new Blob([this._src as any], { type: 'application/pdf' });
 			return encodeURIComponent(URL.createObjectURL(blob));
 		} else {
 			const _checkExtWithoutPdf = this.isValidFile(this.getFileExtension(this._src.split('.pdf')[0]));
