@@ -49,4 +49,5 @@ debug.log
 /ssl
 
 bun.lockb
+bun.lock
 dist
