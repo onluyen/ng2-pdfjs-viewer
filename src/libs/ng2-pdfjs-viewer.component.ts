@@ -161,7 +161,7 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 		if (isBlob) {
 			return Promise.resolve(this._src as Blob);
 		} else if (isUint8Array) {
-			return Promise.resolve(new Blob([this._src as Uint8Array]));
+			return Promise.resolve(new Blob([this._src as any]));
 		} else if (typeof this._src === 'string') {
 			const url = decodeURIComponent(this._src);
 			return firstValueFrom(this.http.get(url, { responseType: 'blob' }));
@@ -208,7 +208,7 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 		if (isBlob) {
 			downloadUrl = URL.createObjectURL(this._src as Blob);
 		} else if (isUint8Array) {
-			downloadUrl = URL.createObjectURL(new Blob([this._src as Uint8Array]));
+			downloadUrl = URL.createObjectURL(new Blob([this._src as any]));
 		} else if (typeof this._src === 'string') {
 			downloadUrl = decodeURIComponent(this._src);
 		}
@@ -542,7 +542,7 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 		if (isBlob) {
 			return encodeURIComponent(URL.createObjectURL(this._src as Blob));
 		} else if (isUint8Array) {
-			let blob = new Blob([this._src as Uint8Array], { type: 'application/pdf' });
+			let blob = new Blob([this._src as any], { type: 'application/pdf' });
 			return encodeURIComponent(URL.createObjectURL(blob));
 		} else {
 			const srcStr = (this._src || '') as string;

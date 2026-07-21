@@ -1,6 +1,6 @@
 {
   "name": "onluyen-pdf-viewer",
-  "version": "20.0.0",
+  "version": "20.0.1",
   "$schema": "./node_modules/ng-packagr/package.schema.json",
   "scripts": {
     "ng": "ng",
@@ -22,7 +22,9 @@
     "@angular/router": "^20.0.0",
     "@angular/animations": "^20.0.0",
     "rxjs": "^7.8.1",
-    "zone.js": "^0.16.0"
+    "zone.js": "^0.16.0",
+    "pptx-preview": "^1.0.7",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@angular/common": "^20.0.0",
@@ -48,7 +50,9 @@
     "ng-packagr": "^20.0.0",
     "prettier": "^3.3.0",
     "rxjs": "^7.8.1",
-    "zone.js": "^0.16.0"
+    "zone.js": "^0.16.0",
+    "pptx-preview": "^1.0.7",
+    "xlsx": "^0.18.5"
   },
   "repository": {
     "type": "git",
