@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, Output, ViewChild, EventEmitter, ElementRef, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, Output, ViewChild, EventEmitter, ElementRef, OnDestroy, OnInit, inject } from '@angular/core';
 import { concatMap, interval, of, Subscription, take, takeWhile, firstValueFrom } from 'rxjs';
 import { renderAsync } from 'docx-preview';
 import * as XLSX from 'xlsx';
