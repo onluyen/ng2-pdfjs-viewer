@@ -155,10 +155,13 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 	}
 
 	getFileBlob(): Promise<Blob> {
-		if (this._src instanceof Blob) {
-			return Promise.resolve(this._src);
-		} else if (this._src instanceof Uint8Array) {
-			return Promise.resolve(new Blob([this._src]));
+		const isBlob = this._src instanceof Blob || (this._src && typeof this._src === 'object' && ('size' in (this._src as any)) && ('type' in (this._src as any)));
+		const isUint8Array = this._src instanceof Uint8Array || (this._src && this._src.constructor && this._src.constructor.name === 'Uint8Array');
+
+		if (isBlob) {
+			return Promise.resolve(this._src as Blob);
+		} else if (isUint8Array) {
+			return Promise.resolve(new Blob([this._src as Uint8Array]));
 		} else if (typeof this._src === 'string') {
 			const url = decodeURIComponent(this._src);
 			return firstValueFrom(this.http.get(url, { responseType: 'blob' }));
@@ -199,10 +202,13 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 		const extLower = (ext || '').toLowerCase();
 
 		let downloadUrl = '';
-		if (this._src instanceof Blob) {
-			downloadUrl = URL.createObjectURL(this._src);
-		} else if (this._src instanceof Uint8Array) {
-			downloadUrl = URL.createObjectURL(new Blob([this._src]));
+		const isBlob = this._src instanceof Blob || (this._src && typeof this._src === 'object' && ('size' in (this._src as any)) && ('type' in (this._src as any)));
+		const isUint8Array = this._src instanceof Uint8Array || (this._src && this._src.constructor && this._src.constructor.name === 'Uint8Array');
+
+		if (isBlob) {
+			downloadUrl = URL.createObjectURL(this._src as Blob);
+		} else if (isUint8Array) {
+			downloadUrl = URL.createObjectURL(new Blob([this._src as Uint8Array]));
 		} else if (typeof this._src === 'string') {
 			downloadUrl = decodeURIComponent(this._src);
 		}
@@ -479,7 +485,9 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 		if (this.isValidFile(extLower)) {
 			this.iframeDocx.nativeElement.style.display = 'block';
 
-			const isLocalFile = this._src instanceof Blob || this._src instanceof Uint8Array;
+			const isBlob = this._src instanceof Blob || (this._src && typeof this._src === 'object' && ('size' in (this._src as any)) && ('type' in (this._src as any)));
+			const isUint8Array = this._src instanceof Uint8Array || (this._src && this._src.constructor && this._src.constructor.name === 'Uint8Array');
+			const isLocalFile = isBlob || isUint8Array;
 			if (isLocalFile) {
 				this.loadOffline(extLower);
 			} else {
@@ -527,37 +535,75 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 		return false;
 	}
 
-	getUrlFile() {
-		if (this._src instanceof Blob) {
-			return encodeURIComponent(URL.createObjectURL(this._src));
-		} else if (this._src instanceof Uint8Array) {
-			let blob = new Blob([this._src], { type: 'application/pdf' });
+	getUrlFile(): string {
+		const isBlob = this._src instanceof Blob || (this._src && typeof this._src === 'object' && ('size' in (this._src as any)) && ('type' in (this._src as any)));
+		const isUint8Array = this._src instanceof Uint8Array || (this._src && this._src.constructor && this._src.constructor.name === 'Uint8Array');
+
+		if (isBlob) {
+			return encodeURIComponent(URL.createObjectURL(this._src as Blob));
+		} else if (isUint8Array) {
+			let blob = new Blob([this._src as Uint8Array], { type: 'application/pdf' });
 			return encodeURIComponent(URL.createObjectURL(blob));
 		} else {
-			const _checkExtWithoutPdf = this.isValidFile(this.getFileExtension(this._src.split('.pdf')[0]));
+			const srcStr = (this._src || '') as string;
+			const _checkExtWithoutPdf = this.isValidFile(this.getFileExtension(srcStr.split('.pdf')[0]));
 			if (_checkExtWithoutPdf) {
-				this._src = this._src.split('.pdf')[0] + (this._src.split('.pdf')[2] ?? '');
+				this._src = srcStr.split('.pdf')[0] + (srcStr.split('.pdf')[2] ?? '');
 			}
-			return this._src;
+			return this._src as string;
 		}
 	}
 
 	getFileExtension(filename) {
-		if (this._src instanceof File && this._src.name) {
-			const parts = this._src.name.split('.');
+		const isFile = this._src instanceof File || (this._src && typeof this._src === 'object' && ('name' in (this._src as any)));
+		if (isFile && (this._src as any).name) {
+			const parts = (this._src as any).name.split('.');
 			if (parts.length > 1) return parts.pop();
 		}
-		if (this._src instanceof Blob && this._src.type) {
-			const type = this._src.type;
+		const isBlob = this._src instanceof Blob || (this._src && typeof this._src === 'object' && ('size' in (this._src as any)) && ('type' in (this._src as any)));
+		if (isBlob && (this._src as any).type) {
+			const type = (this._src as any).type;
 			if (type === 'application/pdf') return 'pdf';
 			if (type.includes('word') || type.includes('document')) return 'docx';
 			if (type.includes('excel') || type.includes('sheet')) return 'xlsx';
 			if (type.includes('presentation') || type.includes('powerpoint')) return 'pptx';
 		}
+
+		// Exception for blob URL strings (e.g. blob:https://...)
+		const isBlobUrl = typeof this._src === 'string' && (this._src.startsWith('blob:') || decodeURIComponent(this._src).startsWith('blob:'));
+		if (isBlobUrl) {
+			if (this.downloadFileName) {
+				const parts = this.downloadFileName.split('.');
+				if (parts.length > 1) return parts.pop();
+			}
+			return 'pdf'; // Default to pdf for blob URLs if no other type is known
+		}
+
+		// Read extension from URL/link first
+		let urlToCheck = '';
+		if (typeof this._src === 'string') {
+			urlToCheck = decodeURIComponent(this._src);
+		} else if (filename) {
+			urlToCheck = decodeURIComponent(filename);
+		}
+
+		if (urlToCheck) {
+			const urlPath = urlToCheck.split('?')[0].split('#')[0];
+			const parts = urlPath.split('.');
+			if (parts.length > 1) {
+				const ext = parts.pop();
+				if (ext && ext.length <= 5) {
+					return ext;
+				}
+			}
+		}
+
+		// Fallback to downloadFileName
 		if (this.downloadFileName) {
 			const parts = this.downloadFileName.split('.');
 			if (parts.length > 1) return parts.pop();
 		}
+
 		let ext = decodeURIComponent(filename || '').split('?')[0].split('.').pop();
 		if (!ext) {
 			ext = decodeURIComponent(filename || '').split('/').pop().split('.').pop();
@@ -640,15 +686,32 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 	private loadLocalPdfWhenReady() {
 		const app = this.PDFViewerApplication;
 		if (app && app.initialized) {
-			if (this._src instanceof Blob) {
+			const isBlob = this._src instanceof Blob || (this._src && typeof this._src === 'object' && ('size' in (this._src as any)) && ('type' in (this._src as any)));
+			const isUint8Array = this._src instanceof Uint8Array || (this._src && this._src.constructor && this._src.constructor.name === 'Uint8Array');
+			const isBlobUrl = typeof this._src === 'string' && (this._src.startsWith('blob:') || decodeURIComponent(this._src).startsWith('blob:'));
+
+			if (isBlob) {
 				const reader = new FileReader();
 				reader.onload = () => {
 					const arrayBuffer = reader.result as ArrayBuffer;
 					app.open(new Uint8Array(arrayBuffer));
 				};
 				reader.readAsArrayBuffer(this._src as Blob);
-			} else if (this._src instanceof Uint8Array) {
-				app.open(this._src);
+			} else if (isUint8Array) {
+				app.open(this._src as Uint8Array);
+			} else if (isBlobUrl) {
+				this.getFileBlob()
+					.then((blob) => {
+						const reader = new FileReader();
+						reader.onload = () => {
+							const arrayBuffer = reader.result as ArrayBuffer;
+							app.open(new Uint8Array(arrayBuffer));
+						};
+						reader.readAsArrayBuffer(blob);
+					})
+					.catch((err) => {
+						console.error('Lỗi khi lấy blob từ URL:', err);
+					});
 			}
 		} else {
 			if (this.externalWindow && (!this.viewerTab || this.viewerTab.closed)) {
@@ -721,7 +784,11 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 			}
 		}
 
-		const isBlobOrUint8Array = this._src instanceof Blob || this._src instanceof Uint8Array;
+		const isBlob = this._src instanceof Blob || (this._src && typeof this._src === 'object' && ('size' in (this._src as any)) && ('type' in (this._src as any)));
+		const isUint8Array = this._src instanceof Uint8Array || (this._src && this._src.constructor && this._src.constructor.name === 'Uint8Array');
+		const isBlobUrl = typeof this._src === 'string' && (this._src.startsWith('blob:') || decodeURIComponent(this._src).startsWith('blob:'));
+		const isBlobOrUint8Array = isBlob || isUint8Array || isBlobUrl;
+
 		let fileUrl = '';
 		if (isBlobOrUint8Array) {
 			fileUrl = '';
@@ -846,23 +913,36 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 				this.loadLocalPdfWhenReady();
 			}
 		} else {
-			this.iframePDF.nativeElement.src = this.viewerUrl;
 			if (isBlobOrUint8Array) {
 				const loadEvent = () => {
 					this.iframePDF.nativeElement.removeEventListener('load', loadEvent);
-					if (this._src instanceof Blob) {
+					if (isBlob) {
 						const reader = new FileReader();
 						reader.onload = () => {
 							const arrayBuffer = reader.result as ArrayBuffer;
 							this.loadLocalPdf(new Uint8Array(arrayBuffer));
 						};
 						reader.readAsArrayBuffer(this._src as Blob);
-					} else if (this._src instanceof Uint8Array) {
-						this.loadLocalPdf(this._src);
+					} else if (isUint8Array) {
+						this.loadLocalPdf(this._src as Uint8Array);
+					} else if (isBlobUrl) {
+						this.getFileBlob()
+							.then((blob) => {
+								const reader = new FileReader();
+								reader.onload = () => {
+									const arrayBuffer = reader.result as ArrayBuffer;
+									this.loadLocalPdf(new Uint8Array(arrayBuffer));
+								};
+								reader.readAsArrayBuffer(blob);
+							})
+							.catch((err) => {
+								console.error('Lỗi khi lấy blob từ URL:', err);
+							});
 					}
 				};
 				this.iframePDF.nativeElement.addEventListener('load', loadEvent);
 			}
+			this.iframePDF.nativeElement.src = this.viewerUrl;
 		}
 
 		console.log(`
