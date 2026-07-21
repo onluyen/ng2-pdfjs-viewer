@@ -20,6 +20,8 @@
 			</div>
 		</div>
 
+		<div #docxRenderContainer id="docxRenderContainer" style="height: calc(100% - 32px); overflow: auto; background: #fff; display: none; padding: 20px;"></div>
+		<div #pptxFallbackContainer id="pptxFallbackContainer" style="height: calc(100% - 32px); display: none; overflow: auto; background: #525659; align-items: flex-start; justify-content: center;"></div>
 		<iframe id="iframeDocx" title="ng2-pdfjs-viewer" [hidden]="externalWindow || (!externalWindow && !pdfSrc)" width="100%"></iframe>
 	</div>
 

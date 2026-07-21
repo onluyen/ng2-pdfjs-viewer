@@ -5,6 +5,11 @@
 	File 2
 </button>
 
+<div style="margin: 10px 0;">
+	<label for="fileUpload" style="font-weight: bold; margin-right: 10px;">Upload File (Xem offline):</label>
+	<input id="fileUpload" type="file" (change)="onFileSelected($event)" accept=".pdf,.docx,.doc,.xlsx,.xls,.pptx,.ppt">
+</div>
+
 {{selectFile?.title}}
 
 @if (selectFile?.url) {

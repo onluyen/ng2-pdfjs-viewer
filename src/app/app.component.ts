@@ -13,7 +13,7 @@ export class AppComponent {
 	@ViewChild('pdfJs') pdfJs: any;
 	title = 'test-18';
 
-	selectFile = {
+	selectFile: { title: string; url: any } = {
 		title: 'Dạng tài liệu pptx2',
 
 		url: 'https://diy67u2u0u3eb.cloudfront.net/FileShare/assignment/config/6598c9da3b16bfc47f7a7ac9/67af01f9680ab3e31132c561.docx',
@@ -55,5 +55,18 @@ export class AppComponent {
 		}
 		this.pdfJs?.refresh();
 		console.log(this.selectFile);
+	}
+
+	onFileSelected(event: any) {
+		const file = event.target.files?.[0];
+		if (file) {
+			this.selectFile = {
+				title: file.name,
+				url: file,
+			};
+			setTimeout(() => {
+				this.pdfJs?.refresh();
+			}, 0);
+		}
 	}
 }
