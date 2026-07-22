@@ -2,6 +2,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "ignoreDeprecations": "6.0",
     "baseUrl": "./src",
     "forceConsistentCasingInFileNames": true,
     "strict": false,
@@ -32,6 +33,7 @@
     ]
   },
   "angularCompilerOptions": {
+    "compilationMode": "partial",
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
