@@ -1,6 +1,6 @@
 {
   "name": "onluyen-pdf-viewer",
-  "version": "20.0.3",
+  "version": "20.0.4",
   "$schema": "./node_modules/ng-packagr/package.schema.json",
   "scripts": {
     "ng": "ng",
@@ -10,7 +10,10 @@
     "serve-public": "node ./node_modules/@angular/cli/bin/ng serve --ssl true --port 443 --host 0.0.0.0"
   },
   "dependencies": {
-    "tslib": "^2.5.0"
+    "docx-preview": "^0.3.7",
+    "pptx-preview": "^1.0.7",
+    "tslib": "^2.5.0",
+    "xlsx": "^0.18.5"
   },
   "peerDependencies": {
     "@angular/animations": "^20.3.26",
@@ -21,9 +24,7 @@
     "@angular/platform-browser": "^20.3.26",
     "@angular/platform-browser-dynamic": "^20.3.26",
     "@angular/router": "^20.3.26",
-    "pptx-preview": "^1.0.7",
-    "rxjs": "^7.8.1",
-    "xlsx": "^0.18.5"
+    "rxjs": "^7.8.1"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^20.3.26",
@@ -38,7 +39,6 @@
     "@angular/platform-browser-dynamic": "^20.3.26",
     "@angular/router": "^20.3.26",
     "@types/jasmine": "~5.1.0",
-    "docx-preview": "^0.3.7",
     "jasmine-core": "~5.2.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",
@@ -46,11 +46,9 @@
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
     "ng-packagr": "^20.3.2",
-    "pptx-preview": "^1.0.7",
     "prettier": "^3.3.0",
     "rxjs": "^7.8.1",
-    "typescript": "~5.9.0",
-    "xlsx": "^0.18.5"
+    "typescript": "~5.9.0"
   },
   "repository": {
     "type": "git",
