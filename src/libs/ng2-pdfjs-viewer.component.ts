@@ -546,9 +546,22 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 			return encodeURIComponent(URL.createObjectURL(blob));
 		} else {
 			const srcStr = (this._src || '') as string;
-			const _checkExtWithoutPdf = this.isValidFile(this.getFileExtension(srcStr.split('.pdf')[0]));
-			if (_checkExtWithoutPdf) {
-				this._src = srcStr.split('.pdf')[0] + (srcStr.split('.pdf')[2] ?? '');
+			// Chỉ strip .pdf khi URL là file non-PDF được đặt tên thêm .pdf ở cuối
+			// (e.g. "file.docx.pdf"). Tức là: phần trước ".pdf" cuối phải có extension hợp lệ khác pdf.
+			// Ta lấy ext trực tiếp từ path (không dùng getFileExtension vì nó ưu tiên this._src)
+			const decodedSrc = decodeURIComponent(srcStr);
+			const pathWithoutQuery = decodedSrc.split('?')[0].split('#')[0];
+			const pathParts = pathWithoutQuery.split('.');
+			const lastExt = pathParts.length > 1 ? (pathParts[pathParts.length - 1] || '').toLowerCase() : '';
+			const secondLastExt = pathParts.length > 2 ? (pathParts[pathParts.length - 2].split('/').pop() || '').toLowerCase() : '';
+
+			// Chỉ strip khi ext cuối là 'pdf' VÀ phần trước đó có extension hợp lệ khác (docx, xlsx, pptx...)
+			if (lastExt === 'pdf' && secondLastExt && this.isValidFile(secondLastExt) && secondLastExt !== 'pdf') {
+				// Strip .pdf ở cuối: bỏ phần ".pdf" cuối cùng
+				const lastDotPdfIndex = srcStr.lastIndexOf('.pdf');
+				if (lastDotPdfIndex !== -1) {
+					this._src = srcStr.substring(0, lastDotPdfIndex);
+				}
 			}
 			return this._src as string;
 		}
