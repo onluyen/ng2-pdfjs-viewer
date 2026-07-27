@@ -16,7 +16,7 @@ export class AppComponent {
 	selectFile: { title: string; url: any } = {
 		title: 'Dạng tài liệu pptx2',
 
-		url: 'https://diy67u2u0u3eb.cloudfront.net/FileShare/assignment/config/6598c9da3b16bfc47f7a7ac9/67af01f9680ab3e31132c561.docx',
+		url: 'https://www.antennahouse.com/hubfs/xsl-fo-sample/pdf/basic-link-1.pdf',
 
 		// url: 'https://d10u0oajcer5vm.cloudfront.net/FileShare/assignment/config/673d4a7b774500c2bdf7ac75/6747db3f904ddbc9afac139c.docx.pdf',
 	};

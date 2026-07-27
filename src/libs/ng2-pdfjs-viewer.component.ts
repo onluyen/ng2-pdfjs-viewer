@@ -546,9 +546,10 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 			return encodeURIComponent(URL.createObjectURL(blob));
 		} else {
 			const srcStr = (this._src || '') as string;
-			const _checkExtWithoutPdf = this.isValidFile(this.getFileExtension(srcStr.split('.pdf')[0]));
+			const parts = srcStr.split('.pdf');
+			const _checkExtWithoutPdf = this.isValidFile(this.getFileExtension(parts[0]));
 			if (_checkExtWithoutPdf) {
-				this._src = srcStr.split('.pdf')[0] + (srcStr.split('.pdf')[2] ?? '');
+				this._src = parts[0] + parts.slice(1).join('.pdf');
 			}
 			return this._src as string;
 		}
@@ -581,10 +582,10 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 
 		// Read extension from URL/link first
 		let urlToCheck = '';
-		if (typeof this._src === 'string') {
-			urlToCheck = decodeURIComponent(this._src);
-		} else if (filename) {
+		if (filename) {
 			urlToCheck = decodeURIComponent(filename);
+		} else if (typeof this._src === 'string') {
+			urlToCheck = decodeURIComponent(this._src);
 		}
 
 		if (urlToCheck) {
