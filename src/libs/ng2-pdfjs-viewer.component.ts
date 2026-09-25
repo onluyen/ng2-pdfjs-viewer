@@ -150,7 +150,12 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 		if (viewerEvent.data && viewerEvent.data.event === 'closefile') {
 			this.closeFile.emit(true);
 		} else if (viewerEvent.data && viewerEvent.data.event === 'loaderError') {
-			this.loadDocument();
+			const isBlob = this._src instanceof Blob || (this._src && typeof this._src === 'object' && ('size' in (this._src as any)) && ('type' in (this._src as any)));
+			const isUint8Array = this._src instanceof Uint8Array || (this._src && this._src.constructor && (this._src as any).constructor.name === 'Uint8Array');
+			const isBlobUrl = typeof this._src === 'string' && (this._src.startsWith('blob:') || decodeURIComponent(this._src).startsWith('blob:'));
+			if (!isBlob && !isUint8Array && !isBlobUrl) {
+				this.loadDocument();
+			}
 		}
 	}
 
@@ -260,7 +265,7 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 				next: (response) => {
 					if (response.status === 200) {
 						const _time = new Date().getTime();
-						this.viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${url}&t=${_time}`;
+						this.viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}&t=${_time}`;
 						if (iframeEl) iframeEl.src = this.viewerUrl;
 						if (this.loadingSpin && this.loadingSpin.nativeElement) {
 							this.loadingSpin.nativeElement.style.display = 'none';
@@ -477,7 +482,7 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 	loadDocument() {
 		this.loadingSpin.nativeElement.style.display = 'block';
 		this.iframePDF.nativeElement.style.display = 'none';
-		let url = this.getUrlFile();
+		let url = decodeURIComponent(this.getUrlFile());
 		let ext = this.getFileExtension(url);
 		console.log(ext);
 		const extLower = (ext || '').toLowerCase();
@@ -760,6 +765,7 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 		// if (this.viewerTab) {
 		//   console.log(`Status of window - ${this.viewerTab.closed}`);
 		// }
+		this.iframePDF.nativeElement.style.display = 'block';
 		this.iframeDocx.nativeElement.style.display = 'none';
 
 		if (this.externalWindow && (typeof this.viewerTab === 'undefined' || this.viewerTab.closed)) {
