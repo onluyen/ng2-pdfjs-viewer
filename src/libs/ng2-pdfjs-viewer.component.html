@@ -7,6 +7,16 @@
 		<div class="toolbar">
 			<div id="toolbarContainer">
 				<div id="toolbarViewer">
+					<button
+						type="button"
+						id="switchViewerBtn"
+						(click)="toggleOnlineViewer()"
+						class="toolbarButton switch-viewer"
+						[title]="currentOnlineViewer === 'office' ? 'Đang dùng Office Viewer. Bấm để chuyển sang Google Viewer' : 'Đang dùng Google Viewer. Bấm để chuyển sang Office Viewer'"
+					>
+						{{ currentOnlineViewer === 'office' ? 'Dùng Google Viewer' : 'Dùng Office Viewer' }}
+					</button>
+
 					<button id="download" (click)="downloadFile()" class="toolbarButton download" title="Download" tabindex="34" data-l10n-id="download">
 						<img src="/assets/pdfjs/web/images/toolbarButton-download.png" alt="Download" />
 					</button>

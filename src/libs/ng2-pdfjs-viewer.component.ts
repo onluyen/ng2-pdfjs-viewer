@@ -248,8 +248,11 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 		`;
 	}
 
-	loadRemoteOnline(url: string, ext: string) {
-		const iframeEl = this.iframeDocx.nativeElement.querySelector('iframe');
+	public currentOnlineViewer: 'office' | 'google' = 'office';
+
+	loadRemoteOnline(url: string, ext: string, viewerType: 'office' | 'google' = 'office') {
+		this.currentOnlineViewer = viewerType;
+		const iframeEl = this.iframeDocx?.nativeElement?.querySelector('iframe');
 		if (iframeEl) {
 			iframeEl.style.display = 'block';
 		}
@@ -260,27 +263,43 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 			this.pptxFallbackContainer.nativeElement.style.display = 'none';
 		}
 
-		this.subscription.add(
-			this.http.head(url, { observe: 'response' }).subscribe({
-				next: (response) => {
-					if (response.status === 200) {
-						const _time = new Date().getTime();
-						this.viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}&t=${_time}`;
-						if (iframeEl) iframeEl.src = this.viewerUrl;
-						if (this.loadingSpin && this.loadingSpin.nativeElement) {
-							this.loadingSpin.nativeElement.style.display = 'none';
-						}
-					} else {
-						console.warn('HTTP Head status not 200, backing up to offline');
-						this.loadOffline(ext);
-					}
-				},
-				error: (err) => {
-					console.warn('HTTP Head failed, backing up to offline', err);
-					this.loadOffline(ext);
+		if (this.loadingSpin && this.loadingSpin.nativeElement) {
+			this.loadingSpin.nativeElement.style.display = 'block';
+		}
+
+		const _time = new Date().getTime();
+		const encodedUrl = encodeURIComponent(url);
+
+		if (this.currentOnlineViewer === 'office') {
+			this.viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodedUrl}&t=${_time}`;
+		} else {
+			// Sử dụng endpoint ViewerNG hiện đại của Google Drive (tránh lỗi tải file gview của endpoint cũ)
+			this.viewerUrl = `https://drive.google.com/viewerng/viewer?embedded=true&url=${encodedUrl}`;
+		}
+
+		if (iframeEl) {
+			iframeEl.onload = () => {
+				if (this.loadingSpin && this.loadingSpin.nativeElement) {
+					this.loadingSpin.nativeElement.style.display = 'none';
 				}
-			})
-		);
+			};
+
+			// Timer an toàn 3s tắt spinner đề phòng trường hợp trình duyệt chặn iframe hoặc trigger tải file
+			setTimeout(() => {
+				if (this.loadingSpin && this.loadingSpin.nativeElement) {
+					this.loadingSpin.nativeElement.style.display = 'none';
+				}
+			}, 3000);
+
+			iframeEl.src = this.viewerUrl;
+		}
+	}
+
+	public toggleOnlineViewer() {
+		const targetViewer = this.currentOnlineViewer === 'office' ? 'google' : 'office';
+		const url = decodeURIComponent(this.getUrlFile());
+		const ext = this.getFileExtension(url);
+		this.loadRemoteOnline(url, ext, targetViewer);
 	}
 
 	loadOffline(ext: string) {
@@ -496,7 +515,7 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 			if (isLocalFile) {
 				this.loadOffline(extLower);
 			} else {
-				this.loadRemoteOnline(url, extLower);
+				this.loadRemoteOnline(url, extLower, 'office');
 			}
 		} else {
 			console.log('Định dạng không hợp lệ!');
