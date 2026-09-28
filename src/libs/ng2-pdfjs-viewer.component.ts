@@ -150,7 +150,12 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 		if (viewerEvent.data && viewerEvent.data.event === 'closefile') {
 			this.closeFile.emit(true);
 		} else if (viewerEvent.data && viewerEvent.data.event === 'loaderError') {
-			this.loadDocument();
+			const isBlob = this._src instanceof Blob || (this._src && typeof this._src === 'object' && ('size' in (this._src as any)) && ('type' in (this._src as any)));
+			const isUint8Array = this._src instanceof Uint8Array || (this._src && this._src.constructor && (this._src as any).constructor.name === 'Uint8Array');
+			const isBlobUrl = typeof this._src === 'string' && (this._src.startsWith('blob:') || decodeURIComponent(this._src).startsWith('blob:'));
+			if (!isBlob && !isUint8Array && !isBlobUrl) {
+				this.loadDocument();
+			}
 		}
 	}
 
@@ -243,8 +248,11 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 		`;
 	}
 
-	loadRemoteOnline(url: string, ext: string) {
-		const iframeEl = this.iframeDocx.nativeElement.querySelector('iframe');
+	public currentOnlineViewer: 'office' | 'google' = 'office';
+
+	loadRemoteOnline(url: string, ext: string, viewerType: 'office' | 'google' = 'office') {
+		this.currentOnlineViewer = viewerType;
+		const iframeEl = this.iframeDocx?.nativeElement?.querySelector('iframe');
 		if (iframeEl) {
 			iframeEl.style.display = 'block';
 		}
@@ -255,27 +263,43 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 			this.pptxFallbackContainer.nativeElement.style.display = 'none';
 		}
 
-		this.subscription.add(
-			this.http.head(url, { observe: 'response' }).subscribe({
-				next: (response) => {
-					if (response.status === 200) {
-						const _time = new Date().getTime();
-						this.viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${url}&t=${_time}`;
-						if (iframeEl) iframeEl.src = this.viewerUrl;
-						if (this.loadingSpin && this.loadingSpin.nativeElement) {
-							this.loadingSpin.nativeElement.style.display = 'none';
-						}
-					} else {
-						console.warn('HTTP Head status not 200, backing up to offline');
-						this.loadOffline(ext);
-					}
-				},
-				error: (err) => {
-					console.warn('HTTP Head failed, backing up to offline', err);
-					this.loadOffline(ext);
+		if (this.loadingSpin && this.loadingSpin.nativeElement) {
+			this.loadingSpin.nativeElement.style.display = 'block';
+		}
+
+		const _time = new Date().getTime();
+		const encodedUrl = encodeURIComponent(url);
+
+		if (this.currentOnlineViewer === 'office') {
+			this.viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodedUrl}&t=${_time}`;
+		} else {
+			// Sử dụng endpoint ViewerNG hiện đại của Google Drive (tránh lỗi tải file gview của endpoint cũ)
+			this.viewerUrl = `https://drive.google.com/viewerng/viewer?embedded=true&url=${encodedUrl}`;
+		}
+
+		if (iframeEl) {
+			iframeEl.onload = () => {
+				if (this.loadingSpin && this.loadingSpin.nativeElement) {
+					this.loadingSpin.nativeElement.style.display = 'none';
 				}
-			})
-		);
+			};
+
+			// Timer an toàn 3s tắt spinner đề phòng trường hợp trình duyệt chặn iframe hoặc trigger tải file
+			setTimeout(() => {
+				if (this.loadingSpin && this.loadingSpin.nativeElement) {
+					this.loadingSpin.nativeElement.style.display = 'none';
+				}
+			}, 3000);
+
+			iframeEl.src = this.viewerUrl;
+		}
+	}
+
+	public toggleOnlineViewer() {
+		const targetViewer = this.currentOnlineViewer === 'office' ? 'google' : 'office';
+		const url = decodeURIComponent(this.getUrlFile());
+		const ext = this.getFileExtension(url);
+		this.loadRemoteOnline(url, ext, targetViewer);
 	}
 
 	loadOffline(ext: string) {
@@ -477,7 +501,7 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 	loadDocument() {
 		this.loadingSpin.nativeElement.style.display = 'block';
 		this.iframePDF.nativeElement.style.display = 'none';
-		let url = this.getUrlFile();
+		let url = decodeURIComponent(this.getUrlFile());
 		let ext = this.getFileExtension(url);
 		console.log(ext);
 		const extLower = (ext || '').toLowerCase();
@@ -491,7 +515,7 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 			if (isLocalFile) {
 				this.loadOffline(extLower);
 			} else {
-				this.loadRemoteOnline(url, extLower);
+				this.loadRemoteOnline(url, extLower, 'office');
 			}
 		} else {
 			console.log('Định dạng không hợp lệ!');
@@ -546,10 +570,22 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 			return encodeURIComponent(URL.createObjectURL(blob));
 		} else {
 			const srcStr = (this._src || '') as string;
-			const parts = srcStr.split('.pdf');
-			const _checkExtWithoutPdf = this.isValidFile(this.getFileExtension(parts[0]));
-			if (_checkExtWithoutPdf) {
-				this._src = parts[0] + parts.slice(1).join('.pdf');
+			// Chỉ strip .pdf khi URL là file non-PDF được đặt tên thêm .pdf ở cuối
+			// (e.g. "file.docx.pdf"). Tức là: phần trước ".pdf" cuối phải có extension hợp lệ khác pdf.
+			// Ta lấy ext trực tiếp từ path (không dùng getFileExtension vì nó ưu tiên this._src)
+			const decodedSrc = decodeURIComponent(srcStr);
+			const pathWithoutQuery = decodedSrc.split('?')[0].split('#')[0];
+			const pathParts = pathWithoutQuery.split('.');
+			const lastExt = pathParts.length > 1 ? (pathParts[pathParts.length - 1] || '').toLowerCase() : '';
+			const secondLastExt = pathParts.length > 2 ? (pathParts[pathParts.length - 2].split('/').pop() || '').toLowerCase() : '';
+
+			// Chỉ strip khi ext cuối là 'pdf' VÀ phần trước đó có extension hợp lệ khác (docx, xlsx, pptx...)
+			if (lastExt === 'pdf' && secondLastExt && this.isValidFile(secondLastExt) && secondLastExt !== 'pdf') {
+				// Strip .pdf ở cuối: bỏ phần ".pdf" cuối cùng
+				const lastDotPdfIndex = srcStr.lastIndexOf('.pdf');
+				if (lastDotPdfIndex !== -1) {
+					this._src = srcStr.substring(0, lastDotPdfIndex);
+				}
 			}
 			return this._src as string;
 		}
@@ -748,6 +784,7 @@ export class PdfJsViewerComponent implements OnInit, OnDestroy {
 		// if (this.viewerTab) {
 		//   console.log(`Status of window - ${this.viewerTab.closed}`);
 		// }
+		this.iframePDF.nativeElement.style.display = 'block';
 		this.iframeDocx.nativeElement.style.display = 'none';
 
 		if (this.externalWindow && (typeof this.viewerTab === 'undefined' || this.viewerTab.closed)) {
