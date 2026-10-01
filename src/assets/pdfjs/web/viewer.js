@@ -1031,7 +1031,7 @@ var PDFViewerApplication = {
               return _context7.abrupt("return", loadingTask.promise.then(function (pdfDocument) {
                 _this2.load(pdfDocument);
               }, function (exception) {
-
+                console.error("PDF loading error:", exception);
                 window.parent.postMessage({event: "loaderError"}, "*");
 
                 return;

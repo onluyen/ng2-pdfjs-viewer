@@ -46,6 +46,27 @@
                     transition-property: background-color, border-color, box-shadow;
                     transition-duration: 150ms;
                     transition-timing-function: ease;
+
+                    &.switch-viewer {
+                        width: auto !important;
+                        min-width: 110px;
+                        padding: 0 10px !important;
+                        margin-right: 8px;
+                        background-color: hsla(0, 0%, 100%, 0.15);
+                        border: 1px solid hsla(0, 0%, 100%, 0.3);
+                        border-radius: 3px;
+                        font-size: 11px;
+                        font-weight: 500;
+                        color: #ffffff;
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+
+                        &:hover {
+                            background-color: hsla(0, 0%, 100%, 0.25);
+                            border-color: hsla(0, 0%, 100%, 0.5);
+                        }
+                    }
                 }
 
                 button:hover {
@@ -112,3 +133,34 @@
         transform: rotate(360deg);
     }
 }
+
+#docxRenderContainer {
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-bottom: 20px;
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            color: #333;
+            font-weight: bold;
+        }
+    }
+}
+

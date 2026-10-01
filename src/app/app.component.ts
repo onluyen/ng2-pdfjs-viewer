@@ -13,12 +13,13 @@ export class AppComponent {
 	@ViewChild('pdfJs') pdfJs: any;
 	title = 'test-18';
 
-	selectFile = {
+	selectFile: { title: string; url: any } = {
 		title: 'Dạng tài liệu pptx2',
 
-		url: 'https://diy67u2u0u3eb.cloudfront.net/FileShare/assignment/config/6598c9da3b16bfc47f7a7ac9/67af01f9680ab3e31132c561.docx',
+		url: 'https://learning-assets.onluyen.vn/LMS/course/6aa41b177c1a166872e37254/6aa41b9e696b05a4ff3fa804.docx',
 
-		// url: 'https://d10u0oajcer5vm.cloudfront.net/FileShare/assignment/config/673d4a7b774500c2bdf7ac75/6747db3f904ddbc9afac139c.docx.pdf',
+		// url: "https://resource-onluyen.s3.ap-southeast-1.amazonaws.com/document-folder/69fd635dbe3183723a893dc6.docx?X-Amz-Expires=300&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIARNHFJRUSNWHCRSXN%2F20260928%2Fap-southeast-1%2Fs3%2Faws4_request&X-Amz-Date=20260928T083406Z&X-Amz-SignedHeaders=host&X-Amz-Signature=0f0d95faa9ab007753cea295d495e71d8cc06eba91ffc5978e0ba9ccd00d7771"
+
 	};
 
 	selectFile2 = {
@@ -49,11 +50,24 @@ export class AppComponent {
 
 	swtichFile(index) {
 		if (index === 1) {
-			this.selectFile = this.selectFile2;
+			// this.selectFile = this.selectFile2;
 		} else {
 			this.selectFile = this.selectFile3;
 		}
 		this.pdfJs?.refresh();
 		console.log(this.selectFile);
+	}
+
+	onFileSelected(event: any) {
+		const file = event.target.files?.[0];
+		if (file) {
+			this.selectFile = {
+				title: file.name,
+				url: file,
+			};
+			setTimeout(() => {
+				this.pdfJs?.refresh();
+			}, 0);
+		}
 	}
 }
